@@ -65,13 +65,16 @@
 
 %type <node> program database_stmt create_db drop_db table_stmt create_table declare_col drop_table union_stmt union_types insert_table valuelist query_stmt from_stmt origintable join_stmt join_types rename select_col selectways aggfunc aggfunctypes counttuples counttuplestypes diffcolumns where_stmt conditions relational_stmt query_bracket isbetween ispresent value groupby_stmt part1 having_stmt havingcond aggcond oper1 orderby_stmt part2 part3 sortorder logical_op rel_oper limit_stmt delete_stmt update_stmt intializelist isdistinct
 
+%parse-param {struct Node *top_node}
+
 %union{
 	struct Node* node;
 }
 %%
 
-program 	: database_stmt ';' 	{ 	
+program : database_stmt ';' 	{
 						$$ = makeNode("program");
+						top_node = $$;
 						$$->child = $1;
 						printf("\n\n\t\t\t\t\t\tParsing tree\n");
 						printf("\t\t\t\t\t\t------------\n");
