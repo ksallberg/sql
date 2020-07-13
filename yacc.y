@@ -2,14 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
-struct Node {
-    struct Node* child;
-    struct Node* sibling;
-    char str[150];
-};
-struct Node* makeNode(char* s);
-void printTree(struct Node* root,int level);
+#include "types.h"
 %}
 
 %start program
@@ -759,10 +752,3 @@ void printTree(struct Node* root,int level)
 		}
 	}
 }
-/*
-int main() 
-{
-	printf("Enter an SQL query\n");
-	yyparse();
-}
-*/
