@@ -720,7 +720,6 @@ intializelist	: IDENTIFIER EQUALITY_OPERATOR value COMMA intializelist	{$$ = mak
 								};
 
 %%
-#include"lex.yy.c"
 
 struct Node* makeNode(char* s) {
     struct Node *node = malloc(sizeof(struct Node));
@@ -760,9 +759,10 @@ void printTree(struct Node* root,int level)
 		}
 	}
 }
-
+/*
 int main() 
 {
 	printf("Enter an SQL query\n");
 	yyparse();
 }
+*/
