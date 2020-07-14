@@ -479,14 +479,14 @@ counttuplestypes: IDENTIFIER {
   $1 = makeNode("SELECTALL");
   $$->child = $1;
   }
-| DISTINCT IDENTIFIER 	{ 
+| DISTINCT IDENTIFIER { 
   $$ = makeNode("counttuplestypes");
   $1 = makeNode("DISTINCT");
   $2 = makeNode("IDENTIFIER");
   $$->child = $1;	
   $1->sibling = $2;
  }
-| DISTINCT SELECTALL 	{ 
+| DISTINCT SELECTALL { 
   $$ = makeNode("counttuplestypes");
   $1 = makeNode("DISTINCT");
   $2 = makeNode("SELECTALL");
@@ -529,7 +529,7 @@ conditions : relational_stmt logical_op conditions {
   $2->sibling=$3;
   $3->sibling=$4;
  }
-| NOT relational_stmt			{
+| NOT relational_stmt {
   $$ = makeNode("conditions");
   $1 = makeNode("NOT");
   $$->child = $1; 
@@ -540,7 +540,7 @@ conditions : relational_stmt logical_op conditions {
   $$->child = $1;
   };
 							
-relational_stmt	: IDENTIFIER rel_oper value 		{
+relational_stmt	: IDENTIFIER rel_oper value {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
   $$->child = $1; 
