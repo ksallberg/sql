@@ -65,239 +65,245 @@
 
 %type <node> program database_stmt create_db drop_db table_stmt create_table declare_col drop_table union_stmt union_types insert_table valuelist query_stmt from_stmt origintable join_stmt join_types rename select_col selectways aggfunc aggfunctypes counttuples counttuplestypes diffcolumns where_stmt conditions relational_stmt query_bracket isbetween ispresent value groupby_stmt part1 having_stmt havingcond aggcond oper1 orderby_stmt part2 part3 sortorder logical_op rel_oper limit_stmt delete_stmt update_stmt intializelist isdistinct
 
-%parse-param {struct Node *top_node}
+%parse-param {struct Node* top_node}
 
 %union{
-	struct Node* node;
+  struct Node* node;
 }
 %%
 
-program : database_stmt ';' 	{
-						$$ = makeNode("program");
-						top_node = $$;
-						$$->child = $1;
-						printf("\n\n\t\t\t\t\t\tParsing tree\n");
-						printf("\t\t\t\t\t\t------------\n");
-						printTree($$,0);
-						printf("INPUT ACCEPTED.... \n");
-						exit(0);
-					}
-		| table_stmt ';'	{ 
-						$$ = makeNode("program");
-						$$->child = $1;
-						printf("\n\n\t\t\t\t\t\tParsing tree\n");
-						printf("\t\t\t\t\t\t------------\n");
-						printTree($$,0);
-						printf("INPUT ACCEPTED.... \n");
-						exit(0);
-					};
+program : database_stmt ';' {
+  $$ = makeNode("program");
+  $$->child = $1;
+  *top_node = *$$;
+  printf("\n\n\t\t\t\t\t\tParsing tree\n");
+  printf("\t\t\t\t\t\t------------\n");
+  printTree($$,0);
+  printf("INPUT ACCEPTED.... \n");
+  return;
+ }
+| table_stmt ';' {
+  $$ = makeNode("program");
+  $$->child = $1;
+  *top_node = *$$;
+  printf("\n\n\t\t\t\t\t\tParsing tree\n");
+  printf("\t\t\t\t\t\t------------\n");
+  printTree($$,0);
+  printf("INPUT ACCEPTED.... \n");
+  return;
+};
 
-database_stmt	: create_db 		{ $$ = makeNode("database_stmt"); $$->child = $1; }
-		| drop_db		{ $$ = makeNode("database_stmt"); $$->child = $1; };
+database_stmt : create_db { $$ = makeNode("database_stmt"); $$->child = $1; }
+	      | drop_db	{ $$ = makeNode("database_stmt"); $$->child = $1; };
 
-create_db	: CREATE DATABASE IDENTIFIER 	{	
-							$$ = makeNode("create_db");
-							$1 = makeNode("CREATE");
-							$2 = makeNode("DATABASE");
-							$3 = makeNode("IDENTIFIER");
-							$$->child = $1; 
-							$1->sibling=$2;
-							$2->sibling=$3;
-						};
+create_db : CREATE DATABASE IDENTIFIER 	{
+  $$ = makeNode("create_db");
+  $1 = makeNode("CREATE");
+  $2 = makeNode("DATABASE");
+  $3 = makeNode("IDENTIFIER");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+};
 
-drop_db		: DROP DATABASE IDENTIFIER   	{	
-							$$ = makeNode("drop_db");
-							$1 = makeNode("DROP");
-							$2 = makeNode("DATABASE");
-							$3 = makeNode("IDENTIFIER");
-							$$->child = $1; 
-							$1->sibling=$2;
-							$2->sibling=$3;
-						};
+drop_db	: DROP DATABASE IDENTIFIER {	
+  $$ = makeNode("drop_db");
+  $1 = makeNode("DROP");
+  $2 = makeNode("DATABASE");
+  $3 = makeNode("IDENTIFIER");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+};
 
-table_stmt	: create_table 			{ $$ = makeNode("table_stmt"); $$->child = $1;}
-		| drop_table			{ $$ = makeNode("table_stmt"); $$->child = $1;}
-		| insert_table			{ $$ = makeNode("table_stmt"); $$->child = $1;}
-		| query_stmt 			{ $$ = makeNode("table_stmt"); $$->child = $1;}
-		| union_stmt			{ $$ = makeNode("table_stmt"); $$->child = $1;}
-		| delete_stmt			{ $$ = makeNode("table_stmt"); $$->child = $1;}
-		| update_stmt			{ $$ = makeNode("table_stmt"); $$->child = $1;};
+table_stmt : create_table { $$ = makeNode("table_stmt"); $$->child = $1;}
+	   | drop_table	{ $$ = makeNode("table_stmt"); $$->child = $1;}
+	   | insert_table { $$ = makeNode("table_stmt"); $$->child = $1;}
+           | query_stmt { $$ = makeNode("table_stmt"); $$->child = $1;}
+	   | union_stmt { $$ = makeNode("table_stmt"); $$->child = $1;}
+	   | delete_stmt { $$ = makeNode("table_stmt"); $$->child = $1;}
+	   | update_stmt { $$ = makeNode("table_stmt"); $$->child = $1;};
 
-create_table	: CREATE TABLE IDENTIFIER '(' declare_col ')' 	{
-									$$ = makeNode("create_table");
-									$1 = makeNode("CREATE");
-									$2 = makeNode("TABLE");
-									$3 = makeNode("IDENTIFIER");
-									$4 = makeNode("(");
-									$6 = makeNode(")");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-									$3->sibling=$4;
-									$4->sibling=$5;
-									$5->sibling=$6;
-								}
-		| CREATE TABLE IDENTIFIER AS query_stmt		{
-									$$ = makeNode("create_table");
-									$1 = makeNode("CREATE");
-									$2 = makeNode("TABLE");
-									$3 = makeNode("IDENTIFIER");
-									$4 = makeNode("AS");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-									$3->sibling=$4;
-									$4->sibling=$5;
-								};
+create_table : CREATE TABLE IDENTIFIER '(' declare_col ')' {
+  $$ = makeNode("create_table");
+  $1 = makeNode("CREATE");
+  $2 = makeNode("TABLE");
+  $3 = makeNode("IDENTIFIER");
+  $4 = makeNode("(");
+  $6 = makeNode(")");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  $4->sibling=$5;
+  $5->sibling=$6;
+ }
+| CREATE TABLE IDENTIFIER AS query_stmt	{
+  $$ = makeNode("create_table");
+  $1 = makeNode("CREATE");
+  $2 = makeNode("TABLE");
+  $3 = makeNode("IDENTIFIER");
+  $4 = makeNode("AS");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  $4->sibling=$5;
+ };
 
-declare_col	: IDENTIFIER DATATYPE COMMA declare_col 	{
-									$$ = makeNode("declare_col");
-									$1 = makeNode("IDENTIFIER");
-									$2 = makeNode("DATATYPE");
-									$3 = makeNode("COMMA");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-									$3->sibling=$4;
-								}
-		| IDENTIFIER DATATYPE				{
-									$$ = makeNode("declare_col");
-									$1 = makeNode("IDENTIFIER");
-									$2 = makeNode("DATATYPE");
-									$$->child = $1; 
-									$1->sibling=$2;
-								};
+declare_col: IDENTIFIER DATATYPE COMMA declare_col {
+  $$ = makeNode("declare_col");
+  $1 = makeNode("IDENTIFIER");
+  $2 = makeNode("DATATYPE");
+  $3 = makeNode("COMMA");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+ }
+| IDENTIFIER DATATYPE {
+  $$ = makeNode("declare_col");
+  $1 = makeNode("IDENTIFIER");
+  $2 = makeNode("DATATYPE");
+  $$->child = $1; 
+  $1->sibling=$2;
+ };
 
-drop_table	: DROP TABLE IDENTIFIER				{
-									$$ = makeNode("drop_table");
-									$1 = makeNode("DROP");
-									$2 = makeNode("TABLE");
-									$3 = makeNode("IDENTIFIER");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-								};
+drop_table : DROP TABLE IDENTIFIER {
+  $$ = makeNode("drop_table");
+  $1 = makeNode("DROP");
+  $2 = makeNode("TABLE");
+  $3 = makeNode("IDENTIFIER");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+};
 
-union_stmt	: query_stmt union_types query_stmt		{
-									$$ = makeNode("union_stmt");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-								}
-		| query_stmt union_types union_stmt		{
-									$$ = makeNode("union_stmt");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-								};
+union_stmt : query_stmt union_types query_stmt {
+  $$ = makeNode("union_stmt");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+ }
+| query_stmt union_types union_stmt {
+  $$ = makeNode("union_stmt");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+ };
 		
-union_types	: UNION 		{ $$ = makeNode("union_types");$1 = makeNode("UNION");$$->child = $1; }
-		| UNION_ALL		{ $$ = makeNode("union_types");$1 = makeNode("UNION_ALL");$$->child = $1; };
+union_types : UNION {
+  $$ = makeNode("union_types");$1 = makeNode("UNION");$$->child = $1;
+ }
+| UNION_ALL {
+  $$ = makeNode("union_types");$1 = makeNode("UNION_ALL");$$->child = $1;
+};
 
-insert_table	: INSERT_INTO IDENTIFIER VALUES '(' valuelist ')'{
-									$$ = makeNode("insert_table");
-									$1 = makeNode("INSERT_INTO");
-									$2 = makeNode("IDENTIFIER");
-									$3 = makeNode("VALUES");
-									$4 = makeNode("(");
-									$6 = makeNode(")");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-									$3->sibling=$4;
-									$4->sibling=$5;
-									$5->sibling=$6;
-								}
-		| INSERT_INTO IDENTIFIER '(' origintable ')' VALUES '(' valuelist ')' 	{
-									$$ = makeNode("insert_table");
-									$1 = makeNode("INSERT_INTO");
-									$2 = makeNode("IDENTIFIER");
-									$3 = makeNode("(");
-									$5 = makeNode(")");
-									$6 = makeNode("VALUES");
-									$7 = makeNode("(");
-									$9 = makeNode(")");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-									$3->sibling=$4;
-									$4->sibling=$5;
-									$5->sibling=$6;
-									$6->sibling=$7;
-									$7->sibling=$8;
-									$8->sibling=$9;
-											}
-		| INSERT_INTO IDENTIFIER '(' origintable ')' query_stmt	{
-									$$ = makeNode("insert_table");
-									$1 = makeNode("INSERT_INTO");
-									$2 = makeNode("IDENTIFIER");
-									$3 = makeNode("(");
-									$5 = makeNode(")");
-									$$->child = $1; 
-									$1->sibling=$2;
-									$2->sibling=$3;
-									$3->sibling=$4;
-									$4->sibling=$5;
-									$5->sibling=$6;
-									}
-		| INSERT_INTO IDENTIFIER query_stmt			{
-										$$ = makeNode("insert_table");
-										$1 = makeNode("INSERT_INTO");
-										$2 = makeNode("IDENTIFIER");
-										$$->child = $1; 
-										$1->sibling=$2;
-										$2->sibling=$3;
-									};
+insert_table : INSERT_INTO IDENTIFIER VALUES '(' valuelist ')' {
+  $$ = makeNode("insert_table");
+  $1 = makeNode("INSERT_INTO");
+  $2 = makeNode("IDENTIFIER");
+  $3 = makeNode("VALUES");
+  $4 = makeNode("(");
+  $6 = makeNode(")");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  $4->sibling=$5;
+  $5->sibling=$6;
+ }
+| INSERT_INTO IDENTIFIER '(' origintable ')' VALUES '(' valuelist ')' {
+  $$ = makeNode("insert_table");
+  $1 = makeNode("INSERT_INTO");
+  $2 = makeNode("IDENTIFIER");
+  $3 = makeNode("(");
+  $5 = makeNode(")");
+  $6 = makeNode("VALUES");
+  $7 = makeNode("(");
+  $9 = makeNode(")");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  $4->sibling=$5;
+  $5->sibling=$6;
+  $6->sibling=$7;
+  $7->sibling=$8;
+  $8->sibling=$9;
+ }
+| INSERT_INTO IDENTIFIER '(' origintable ')' query_stmt	{
+  $$ = makeNode("insert_table");
+  $1 = makeNode("INSERT_INTO");
+  $2 = makeNode("IDENTIFIER");
+  $3 = makeNode("(");
+  $5 = makeNode(")");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  $4->sibling=$5;
+  $5->sibling=$6;
+ }
+| INSERT_INTO IDENTIFIER query_stmt {
+  $$ = makeNode("insert_table");
+  $1 = makeNode("INSERT_INTO");
+  $2 = makeNode("IDENTIFIER");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+ };
 		
-valuelist	: value COMMA valuelist					{
-										$$ = makeNode("valuelist");
-										$2 = makeNode("COMMA");
-										$$->child = $1; 
-										$1->sibling=$2;
-										$2->sibling=$3;
-									}
-		| value					{ $$ = makeNode("valuelist"); $$->child = $1;};
-		
-query_stmt	: SELECT isdistinct select_col from_stmt where_stmt groupby_stmt having_stmt orderby_stmt limit_stmt
-							{
-								$$ = makeNode("query_stmt");
-								$1 = makeNode("SELECT");
-								$$->child = $1; 
-								$1->sibling=$2;
-								$2->sibling=$3;
-								$3->sibling=$4;
-								$4->sibling=$5;
-								$5->sibling=$6;
-								$6->sibling=$7;
-								$7->sibling=$8;
-								$8->sibling=$9;
-							};
+valuelist : value COMMA valuelist {
+  $$ = makeNode("valuelist");
+  $2 = makeNode("COMMA");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+ }
+| value	{ $$ = makeNode("valuelist"); $$->child = $1;};
 
-isdistinct	: DISTINCT			{$$ = makeNode("isdistinct");$1 = makeNode("DISTINCT");$$->child = $1; }
-		| 				{$$ = makeNode("isdistinct");};
+query_stmt : SELECT isdistinct select_col from_stmt where_stmt groupby_stmt having_stmt orderby_stmt limit_stmt {
+  $$ = makeNode("query_stmt");
+  $1 = makeNode("SELECT");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  $4->sibling=$5;
+  $5->sibling=$6;
+  $6->sibling=$7;
+  $7->sibling=$8;
+  $8->sibling=$9;
+ };
+
+isdistinct : DISTINCT {
+  $$ = makeNode("isdistinct");$1 = makeNode("DISTINCT");$$->child = $1;
+ }
+	   | {$$ = makeNode("isdistinct");};
 		
-from_stmt	: FROM origintable		{	
-							$$ = makeNode("from_stmt");
-							$1 = makeNode("FROM");
-							$$->child = $1; 
-							$1->sibling=$2;
-						}
-		| FROM '(' query_stmt ')'	{
-							$$ = makeNode("from_stmt");
-							$1 = makeNode("FROM");
-							$2 = makeNode("(");
-							$4 = makeNode(")");
-							$$->child = $1; 
-							$1->sibling=$2;
-							$2->sibling=$3;
-							$3->sibling=$4;
-						}
-		| FROM join_stmt		{
-							$$ = makeNode("from_stmt");
-							$1 = makeNode("FROM");
-							$$->child = $1; 
-							$1->sibling=$2;
-						};
+from_stmt : FROM origintable {
+  $$ = makeNode("from_stmt");
+  $1 = makeNode("FROM");
+  $$->child = $1; 
+  $1->sibling=$2;
+ }
+| FROM '(' query_stmt ')' {
+  $$ = makeNode("from_stmt");
+  $1 = makeNode("FROM");
+  $2 = makeNode("(");
+  $4 = makeNode(")");
+  $$->child = $1; 
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  }
+| FROM join_stmt {
+  $$ = makeNode("from_stmt");
+  $1 = makeNode("FROM");
+  $$->child = $1; 
+  $1->sibling=$2;
+ };
 
 origintable	: IDENTIFIER rename		{
 							$$ = makeNode("origintable");
@@ -723,35 +729,4 @@ struct Node* makeNode(char* s) {
     node->sibling = NULL;
     strcpy(node->str,s);
     return node;
-}
-
-void printTree(struct Node* root,int level)
-{
-	if(root==NULL)
-		return;
-	if(root->child==NULL && root->str[0] >= 97 && root->str[0]<=122)
-		return;
-	for(int i=0;i<level;i++)
-		printf("	");
-	if( root->str[0] >= 65 && root->str[0]<=90)
-	{
-		printf("\033[01;33m");
-		printf("-%s\n",root->str);
-		printf("\033[0m");
-	}
-	else
-	{
-		printf("\033[0;32m");
-		printf("-%s\n",root->str);
-		printf("\033[0m");
-	}
-	if(root->child!=NULL)
-	{
-		root = root->child;
-		while(root!=NULL)
-		{
-			printTree(root,level+1);
-			root = root->sibling;
-		}
-	}
 }
