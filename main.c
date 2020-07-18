@@ -43,15 +43,15 @@ void trav_query_stmt(struct Node* node) {
 }
 
 void trav_select(struct Node* node) {
-  //  struct Node *col = node->child;
   struct Node *distinct = node->sibling;
   struct Node *select_col = distinct->sibling;
   struct Node *from_stmt = select_col->sibling;
-  printf("trav_select %s %s %s %s\n",
-	 distinct->str,
-	 select_col->str,
-	 from_stmt->str,
-	 from_stmt->child->sibling->child->str);
+
+  
+  char *selector = select_col->child->child->child->str;
+  char *table_name = from_stmt->child->sibling->child->str;
+  printf("trav_select, what to select: %s table name: %s \n",
+	 selector, table_name);
 }
 
 void trav_insert_table(struct Node* node) {
@@ -65,11 +65,6 @@ void trav_db_stmt(struct Node* node) {
 void print_tree(struct Node* root, int level)
 {
   if(root==NULL) {
-    return;
-  }
-  if(root->child==NULL &&
-     root->str[0] >= 97 &&
-     root->str[0]<=122) {
     return;
   }
   for(int i=0;i<level;i++) {

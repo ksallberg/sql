@@ -21,7 +21,7 @@
 %token <node> ALL
 %token <node> ANY
 %token <node> ON
-%token <node> ASC 
+%token <node> ASC
 %token <node> DESC
 %token <node> DATATYPE
 %token <node> NUMBER
@@ -68,6 +68,7 @@
 %parse-param {struct Node* top_node}
 
 %union{
+  char *strval;
   struct Node* node;
 }
 %%
@@ -76,30 +77,30 @@ program : database_stmt ';' {
   $$ = makeNode("program");
   $$->child = $1;
   *top_node = *$$;
-  printf("\n\n\t\t\t\t\t\tParsing tree\n");
-  printf("\t\t\t\t\t\t------------\n");
-  printf("INPUT ACCEPTED.... \n");
   return;
  }
 | table_stmt ';' {
   $$ = makeNode("program");
   $$->child = $1;
   *top_node = *$$;
-  printf("\n\n\t\t\t\t\t\tParsing tree\n");
-  printf("\t\t\t\t\t\t------------\n");
-  printf("INPUT ACCEPTED.... \n");
   return;
 };
 
-database_stmt : create_db { $$ = makeNode("database_stmt"); $$->child = $1; }
-	      | drop_db	{ $$ = makeNode("database_stmt"); $$->child = $1; };
+database_stmt : create_db {
+  $$ = makeNode("database_stmt");
+  $$->child = $1;
+ }
+| drop_db {
+  $$ = makeNode("database_stmt");
+  $$->child = $1;
+  };
 
-create_db : CREATE DATABASE IDENTIFIER 	{
+create_db : CREATE DATABASE IDENTIFIER {
   $$ = makeNode("create_db");
   $1 = makeNode("CREATE");
   $2 = makeNode("DATABASE");
   $3 = makeNode("IDENTIFIER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
 };
@@ -114,13 +115,34 @@ drop_db	: DROP DATABASE IDENTIFIER {
   $2->sibling=$3;
 };
 
-table_stmt : create_table { $$ = makeNode("table_stmt"); $$->child = $1;}
-	   | drop_table	{ $$ = makeNode("table_stmt"); $$->child = $1;}
-	   | insert_table { $$ = makeNode("table_stmt"); $$->child = $1;}
-           | query_stmt { $$ = makeNode("table_stmt"); $$->child = $1;}
-	   | union_stmt { $$ = makeNode("table_stmt"); $$->child = $1;}
-	   | delete_stmt { $$ = makeNode("table_stmt"); $$->child = $1;}
-	   | update_stmt { $$ = makeNode("table_stmt"); $$->child = $1;};
+table_stmt : create_table {
+  $$ = makeNode("table_stmt");
+  $$->child = $1;
+ }
+| drop_table {
+  $$ = makeNode("table_stmt");
+  $$->child = $1;
+  }
+| insert_table {
+  $$ = makeNode("table_stmt");
+  $$->child = $1;
+  }
+| query_stmt {
+  $$ = makeNode("table_stmt");
+  $$->child = $1;
+  }
+| union_stmt {
+  $$ = makeNode("table_stmt");
+  $$->child = $1;
+  }
+| delete_stmt {
+  $$ = makeNode("table_stmt");
+  $$->child = $1;
+  }
+| update_stmt {
+  $$ = makeNode("table_stmt");
+  $$->child = $1;
+  };
 
 create_table : CREATE TABLE IDENTIFIER '(' declare_col ')' {
   $$ = makeNode("create_table");
@@ -208,7 +230,7 @@ insert_table : INSERT_INTO IDENTIFIER VALUES '(' valuelist ')' {
   $3 = makeNode("VALUES");
   $4 = makeNode("(");
   $6 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -224,7 +246,7 @@ insert_table : INSERT_INTO IDENTIFIER VALUES '(' valuelist ')' {
   $6 = makeNode("VALUES");
   $7 = makeNode("(");
   $9 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -234,13 +256,13 @@ insert_table : INSERT_INTO IDENTIFIER VALUES '(' valuelist ')' {
   $7->sibling=$8;
   $8->sibling=$9;
  }
-| INSERT_INTO IDENTIFIER '(' origintable ')' query_stmt	{
+| INSERT_INTO IDENTIFIER '(' origintable ')' query_stmt {
   $$ = makeNode("insert_table");
   $1 = makeNode("INSERT_INTO");
   $2 = makeNode("IDENTIFIER");
   $3 = makeNode("(");
   $5 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -251,15 +273,15 @@ insert_table : INSERT_INTO IDENTIFIER VALUES '(' valuelist ')' {
   $$ = makeNode("insert_table");
   $1 = makeNode("INSERT_INTO");
   $2 = makeNode("IDENTIFIER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  };
-		
+
 valuelist : value COMMA valuelist {
   $$ = makeNode("valuelist");
   $2 = makeNode("COMMA");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
@@ -271,7 +293,7 @@ valuelist : value COMMA valuelist {
 query_stmt : SELECT isdistinct select_col from_stmt where_stmt groupby_stmt having_stmt orderby_stmt limit_stmt {
   $$ = makeNode("query_stmt");
   $1 = makeNode("SELECT");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -290,11 +312,11 @@ isdistinct : DISTINCT {
 | {
   $$ = makeNode("isdistinct");
  };
-		
+
 from_stmt : FROM origintable {
   $$ = makeNode("from_stmt");
   $1 = makeNode("FROM");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
  }
 | FROM '(' query_stmt ')' {
@@ -302,7 +324,7 @@ from_stmt : FROM origintable {
   $1 = makeNode("FROM");
   $2 = makeNode("(");
   $4 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -310,21 +332,23 @@ from_stmt : FROM origintable {
 | FROM join_stmt {
   $$ = makeNode("from_stmt");
   $1 = makeNode("FROM");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
  };
 
-origintable : IDENTIFIER rename	{
+origintable : IDENTIFIER rename {
   $$ = makeNode("origintable");
-  $1 = makeNode("IDENTIFIER");
-  $$->child = $1; 
-  $1->sibling=$2;
+  //  $1 = makeNode("IDENTIFIER");
+  $1 = makeNode(yylval.strval);
+  free(yylval.strval);
+  $$->child = $1;
+  $1->sibling = $2;
  }
 | IDENTIFIER rename COMMA origintable {
   $$ = makeNode("origintable");
   $1 = makeNode("IDENTIFIER");
   $3 = makeNode("COMMA");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -340,7 +364,7 @@ join_stmt : IDENTIFIER join_types IDENTIFIER ON IDENTIFIER EQUALITY_OPERATOR IDE
   $6 = makeNode("VALUES");
   $6 = makeNode("EQUALITY_OPERATOR");
   $7 = makeNode("IDENTIFIER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -357,18 +381,18 @@ join_stmt : IDENTIFIER join_types IDENTIFIER ON IDENTIFIER EQUALITY_OPERATOR IDE
   $6 = makeNode("VALUES");
   $6 = makeNode("EQUALITY_OPERATOR");
   $7 = makeNode("IDENTIFIER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
   $4->sibling=$5;
   $5->sibling=$6;
   $6->sibling=$7;
-							}
+}
 | '(' join_stmt ')' join_types IDENTIFIER ON IDENTIFIER EQUALITY_OPERATOR IDENTIFIER
 | '(' '(' join_stmt ')' join_types IDENTIFIER ON IDENTIFIER EQUALITY_OPERATOR IDENTIFIER ')';
-		
-join_types : INNER_JOIN	{
+
+join_types : INNER_JOIN {
   $$ = makeNode("join_types");
   $1 = makeNode("INNER_JOIN");
   $$->child = $1;
@@ -394,14 +418,14 @@ rename : AS IDENTIFIER {
   $1 = makeNode("AS");
   $2 = makeNode("IDENTIFIER");
   $$->child = $1;
-  $1->sibling=$2; 
+  $1->sibling=$2;
  }
 | {$$ = makeNode("rename");};
 
 select_col : selectways rename COMMA select_col {
   $$ = makeNode("select_col");
   $3 = makeNode("COMMA");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -411,7 +435,7 @@ select_col : selectways rename COMMA select_col {
   $$->child = $1;
   $1->sibling = $2;
  };
-							
+
 selectways : diffcolumns {
   $$ = makeNode("selectways");
   $$->child = $1;
@@ -419,18 +443,18 @@ selectways : diffcolumns {
 | counttuples {
   $$ = makeNode("selectways");
   $$->child = $1;
-  }	
+  }
 | aggfunc {
   $$ = makeNode("selectways");
   $$->child = $1;
   };
-		
-aggfunc	: aggfunctypes '(' IDENTIFIER ')' {
+
+aggfunc : aggfunctypes '(' IDENTIFIER ')' {
   $$ = makeNode("aggfunc");
   $2 = makeNode("(");
   $3 = makeNode("IDENTIFIER");
   $4 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -456,14 +480,14 @@ aggfunctypes : AVERAGE {
   $1 = makeNode("MAXIMUM");
   $$->child = $1;
   };
-							
+
 counttuples : COUNT '(' counttuplestypes ')' {
   $$ = makeNode("counttuples");
   $1 = makeNode("COUNT");
   $2 = makeNode("(");
   $3 = makeNode("IDENTIFIER");
   $4 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -479,36 +503,37 @@ counttuplestypes: IDENTIFIER {
   $1 = makeNode("SELECTALL");
   $$->child = $1;
   }
-| DISTINCT IDENTIFIER { 
+| DISTINCT IDENTIFIER {
   $$ = makeNode("counttuplestypes");
   $1 = makeNode("DISTINCT");
   $2 = makeNode("IDENTIFIER");
-  $$->child = $1;	
+  $$->child = $1;
   $1->sibling = $2;
  }
-| DISTINCT SELECTALL { 
+| DISTINCT SELECTALL {
   $$ = makeNode("counttuplestypes");
   $1 = makeNode("DISTINCT");
   $2 = makeNode("SELECTALL");
-  $$->child = $1;	
+  $$->child = $1;
   $1->sibling = $2;
  };
-		
-diffcolumns : SELECTALL	{
+
+diffcolumns : SELECTALL {
   $$ = makeNode("diffcolumns");
   $1 = makeNode("SELECTALL");
   $$->child = $1;
  }
 | IDENTIFIER {
   $$ = makeNode("diffcolumns");
-  $1 = makeNode("IDENTIFIER");
+  $1 = makeNode(yylval.strval);
+  free(yylval.strval);
+  // $1 = makeNode("IDENTIFIER");
   $$->child = $1;
   };
-	
 where_stmt : WHERE conditions {
   $$ = makeNode("where_stmt");
   $1 = makeNode("WHERE");
-  $$->child = $1;	
+  $$->child = $1;
   $1->child = $2;
  }
 | {
@@ -517,14 +542,14 @@ where_stmt : WHERE conditions {
 
 conditions : relational_stmt logical_op conditions {
   $$ = makeNode("conditions");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
 | NOT relational_stmt logical_op conditions {
   $$ = makeNode("conditions");
   $1 = makeNode("NOT");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -532,18 +557,18 @@ conditions : relational_stmt logical_op conditions {
 | NOT relational_stmt {
   $$ = makeNode("conditions");
   $1 = makeNode("NOT");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
  }
 | relational_stmt {
   $$ = makeNode("conditions");
   $$->child = $1;
   };
-							
+
 relational_stmt	: IDENTIFIER rel_oper value {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
@@ -552,7 +577,7 @@ relational_stmt	: IDENTIFIER rel_oper value {
   $1 = makeNode("IDENTIFIER");
   $2 = makeNode("EQUALITY_OPERATOR");
   $3 = makeNode("IDENTIFIER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
@@ -560,14 +585,14 @@ relational_stmt	: IDENTIFIER rel_oper value {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
   $2 = makeNode("IS_NULL");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
  }
 | IDENTIFIER IS_NOT_NULL {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
   $2 = makeNode("IS_NOT_NULL");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
  }
 | IDENTIFIER LIKE STRING {
@@ -575,7 +600,7 @@ relational_stmt	: IDENTIFIER rel_oper value {
   $1 = makeNode("IDENTIFIER");
   $2 = makeNode("LIKE");
   $3 = makeNode("STRING");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
@@ -584,7 +609,7 @@ relational_stmt	: IDENTIFIER rel_oper value {
   $1 = makeNode("IDENTIFIER");
   $2 = makeNode("NOT_LIKE");
   $3 = makeNode("STRING");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
@@ -593,7 +618,7 @@ relational_stmt	: IDENTIFIER rel_oper value {
   $1 = makeNode("IDENTIFIER");
   $3 = makeNode("(");
   $5 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -602,29 +627,29 @@ relational_stmt	: IDENTIFIER rel_oper value {
 | IDENTIFIER ispresent query_bracket {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
-| IDENTIFIER isbetween NUMBER AND NUMBER {	
+| IDENTIFIER isbetween NUMBER AND NUMBER {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
   $3 = makeNode("NUMBER");
   $4 = makeNode("AND");
   $5 = makeNode("NUMBER");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling = $2;
   $2->sibling = $3;
   $3->sibling = $4;
   $4->sibling = $5;
  }
-| IDENTIFIER isbetween STRING AND STRING {	
+| IDENTIFIER isbetween STRING AND STRING {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
   $3 = makeNode("STRING");
   $4 = makeNode("AND");
   $5 = makeNode("STRING");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -634,7 +659,7 @@ relational_stmt	: IDENTIFIER rel_oper value {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
   $3 = makeNode("ANY");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -643,7 +668,7 @@ relational_stmt	: IDENTIFIER rel_oper value {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("IDENTIFIER");
   $3 = makeNode("ALL");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
   $3->sibling=$4;
@@ -651,7 +676,7 @@ relational_stmt	: IDENTIFIER rel_oper value {
 | EXISTS query_bracket {
   $$ = makeNode("relational_stmt");
   $1 = makeNode("EXISTS");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
  };
 
@@ -659,7 +684,7 @@ query_bracket : '(' query_stmt ')' {
   $$ = makeNode("query_bracket");
   $1 = makeNode("(");
   $3 = makeNode(")");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  };
@@ -674,7 +699,7 @@ isbetween : BETWEEN {
   $1 = makeNode("NOT_BETWEEN");
   $$->child = $1;
   };
-		
+
 ispresent : IN {
   $$ = makeNode("ispresent");
   $1 = makeNode("IN");
@@ -685,7 +710,7 @@ ispresent : IN {
   $1 = makeNode("NOT_IN");
   $$->child = $1;
   };
-		
+
 value : NUMBER {
   $$ = makeNode("value");
   $1 = makeNode("NUMBER");
@@ -700,20 +725,20 @@ value : NUMBER {
 groupby_stmt : GROUP_BY part1 {
   $$ = makeNode("groupby_stmt");
   $1 = makeNode("GROUP_BY");
-  $$->child = $1; 
+  $$->child = $1;
   $1->sibling=$2;
  }
 | {
   $$ = makeNode("groupby_stmt");
  };
-		
-part1 : IDENTIFIER COMMA part1 { 
+
+part1 : IDENTIFIER COMMA part1 {
   $$ = makeNode("part1");
   $1 = makeNode("IDENTIFIER");
   $2 = makeNode("COMMA");
-  $$->child = $1;	
+  $$->child = $1;
   $1->sibling=$2;
-  $2->sibling=$3;	
+  $2->sibling=$3;
  }
 | IDENTIFIER {
   $$ = makeNode("part1");
