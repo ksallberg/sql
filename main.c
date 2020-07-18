@@ -37,6 +37,21 @@ void trav_tab_stmt(struct Node* node) {
 
 void trav_query_stmt(struct Node* node) {
   printf("trav_query_stmt %s\n", node->str);
+  if(strcmp(node->str, "SELECT") == 0) {
+    trav_select(node);
+  }
+}
+
+void trav_select(struct Node* node) {
+  //  struct Node *col = node->child;
+  struct Node *distinct = node->sibling;
+  struct Node *select_col = distinct->sibling;
+  struct Node *from_stmt = select_col->sibling;
+  printf("trav_select %s %s %s %s\n",
+	 distinct->str,
+	 select_col->str,
+	 from_stmt->str,
+	 from_stmt->child->sibling->child->str);
 }
 
 void trav_insert_table(struct Node* node) {
