@@ -148,7 +148,7 @@ create_table : CREATE TABLE IDENTIFIER '(' declare_col ')' {
   $$ = makeNode("create_table");
   $1 = makeNode("CREATE");
   $2 = makeNode("TABLE");
-  $3 = makeNode("IDENTIFIER");
+  $3 = makeNode($3);
   $4 = makeNode("(");
   $6 = makeNode(")");
   $$->child = $1;
@@ -173,7 +173,8 @@ create_table : CREATE TABLE IDENTIFIER '(' declare_col ')' {
 
 declare_col: IDENTIFIER DATATYPE COMMA declare_col {
   $$ = makeNode("declare_col");
-  $1 = makeNode("IDENTIFIER");
+  $1 = makeNode($1);
+  //  free(yylval.strval);
   $2 = makeNode("DATATYPE");
   $3 = makeNode("COMMA");
   $$->child = $1;
@@ -183,7 +184,8 @@ declare_col: IDENTIFIER DATATYPE COMMA declare_col {
  }
 | IDENTIFIER DATATYPE {
   $$ = makeNode("declare_col");
-  $1 = makeNode("IDENTIFIER");
+  $1 = makeNode($1);
+  //  $1 = makeNode("IDENTIFIER");
   $2 = makeNode("DATATYPE");
   $$->child = $1;
   $1->sibling=$2;
@@ -530,6 +532,7 @@ diffcolumns : SELECTALL {
   // $1 = makeNode("IDENTIFIER");
   $$->child = $1;
   };
+
 where_stmt : WHERE conditions {
   $$ = makeNode("where_stmt");
   $1 = makeNode("WHERE");

@@ -9,7 +9,7 @@ struct Row {
 };
 
 struct Table {
-  char name[10];
+  char name[20];
   char schema[10][10];
   struct Row instances[100];
 };

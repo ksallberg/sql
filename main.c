@@ -3,6 +3,10 @@
 
 #include "types.h"
 
+// CREATE TABLE apa (age varchar(20), weight int);
+int cur_table = 0;
+struct Table tables[10];
+
 void trav_tree(struct Node* node)
 {
   printf("trav tree:%s\n", node->str);
@@ -30,6 +34,8 @@ void trav_tab_stmt(struct Node* node) {
     trav_query_stmt(node->child);
   } else if(strcmp(node->str, "insert_table") == 0) {
     trav_insert_table(node->child);
+  } else if(strcmp(node->str, "create_table") == 0) {
+    trav_create_table(node->child);
   } else {
     printf("error! unsupported operation!\n");
   }
@@ -47,7 +53,6 @@ void trav_select(struct Node* node) {
   struct Node *select_col = distinct->sibling;
   struct Node *from_stmt = select_col->sibling;
 
-  
   char *selector = select_col->child->child->child->str;
   char *table_name = from_stmt->child->sibling->child->str;
   printf("trav_select, what to select: %s table name: %s \n",
@@ -56,6 +61,13 @@ void trav_select(struct Node* node) {
 
 void trav_insert_table(struct Node* node) {
   printf("trav_insert_table %s", node->str);
+}
+
+void trav_create_table(struct Node *node) {
+  struct Node *table_name = node->sibling->sibling;
+  printf("trav_create_table %s \n", table_name->str);
+  strcpy(tables[cur_table].name, table_name->str);
+  cur_table++;
 }
 
 void trav_db_stmt(struct Node* node) {
@@ -92,8 +104,6 @@ void print_tree(struct Node* root, int level)
 int main()
 {
   int run = 1;
-  char user_input[256];
-  struct Table tables[10];
   struct Node *top_node;
 
   while(run==1) {
@@ -102,5 +112,8 @@ int main()
     yyparse(top_node);
     trav_tree(top_node);
     print_tree(top_node, 0);
+    for(int i = 0; i < 10; i ++) {
+      printf("table# %d name: %s\n", i, tables[i].name);
+    }
   }
 }
