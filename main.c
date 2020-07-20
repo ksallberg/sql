@@ -67,7 +67,20 @@ void trav_create_table(struct Node *node) {
   struct Node *table_name = node->sibling->sibling;
   printf("trav_create_table %s \n", table_name->str);
   strcpy(tables[cur_table].name, table_name->str);
+  trav_create_table_col(0, table_name->sibling->sibling);
   cur_table++;
+}
+
+void trav_create_table_col(int place, struct Node *node) {
+  struct Node *col_name = node->child->str;
+  strcpy(tables[cur_table].schema[place], col_name);
+  node = node->child;
+  while(node != NULL && strcmp(node->str, "declare_col")!=0) {
+    node = node->sibling;
+  }
+  if(node!=NULL) {
+    trav_create_table_col(place+1, node);
+  }
 }
 
 void trav_db_stmt(struct Node* node) {
@@ -114,6 +127,11 @@ int main()
     print_tree(top_node, 0);
     for(int i = 0; i < 10; i ++) {
       printf("table# %d name: %s\n", i, tables[i].name);
+      if(strcmp(tables[i].name, "") != 0) {
+	for(int j = 0; j < 10; j ++) {
+	  printf("   col# %d name: %s \n", j, tables[i].schema[j]);
+	}
+      }
     }
   }
 }
