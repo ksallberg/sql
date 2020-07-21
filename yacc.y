@@ -228,7 +228,7 @@ union_types : UNION {
 insert_table : INSERT_INTO IDENTIFIER VALUES '(' valuelist ')' {
   $$ = makeNode("insert_table");
   $1 = makeNode("INSERT_INTO");
-  $2 = makeNode("IDENTIFIER");
+  $2 = makeNode($2);
   $3 = makeNode("VALUES");
   $4 = makeNode("(");
   $6 = makeNode(")");
@@ -340,9 +340,8 @@ from_stmt : FROM origintable {
 
 origintable : IDENTIFIER rename {
   $$ = makeNode("origintable");
-  //  $1 = makeNode("IDENTIFIER");
-  $1 = makeNode(yylval.strval);
-  free(yylval.strval);
+  $1 = makeNode($1);//yylval.strval);
+  //  free(yylval.strval);
   $$->child = $1;
   $1->sibling = $2;
  }
@@ -527,8 +526,8 @@ diffcolumns : SELECTALL {
  }
 | IDENTIFIER {
   $$ = makeNode("diffcolumns");
-  $1 = makeNode(yylval.strval);
-  free(yylval.strval);
+  $1 = makeNode($1);
+  //  free(yylval.strval);
   // $1 = makeNode("IDENTIFIER");
   $$->child = $1;
   };
@@ -716,12 +715,12 @@ ispresent : IN {
 
 value : NUMBER {
   $$ = makeNode("value");
-  $1 = makeNode("NUMBER");
+  $1 = makeNode($1);
   $$->child = $1;
  }
 | STRING {
   $$ = makeNode("value");
-  $1 = makeNode("STRING");
+  $1 = makeNode($1);
   $$->child = $1;
   };
 

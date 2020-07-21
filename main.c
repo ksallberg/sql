@@ -4,6 +4,10 @@
 #include "types.h"
 
 // CREATE TABLE apa (age varchar(20), weight int);
+// INSERT INTO apa VALUES ("hundred", 200, 43, 'hej');
+// SELECT * FROM apa;
+// SELECT age FROM apa;
+
 int cur_table = 0;
 struct Table tables[10];
 
@@ -60,7 +64,22 @@ void trav_select(struct Node* node) {
 }
 
 void trav_insert_table(struct Node* node) {
-  printf("trav_insert_table %s", node->str);
+  char *table_name = node->sibling->str;
+  printf("trav_insert_table name %s\n", table_name);
+  struct Node* value_list = node->sibling->sibling->sibling->sibling;
+  trav_value_list(value_list);
+}
+
+void trav_value_list(struct Node* node) {
+  char *cur_value = node->child->child->str;
+  printf("cur value: %s\n", cur_value);
+  node = node->child;
+  while(node != NULL && strcmp(node->str, "valuelist")!=0) {
+    node = node->sibling;
+  }
+  if(node!=NULL) {
+    trav_value_list(node);
+  }
 }
 
 void trav_create_table(struct Node *node) {

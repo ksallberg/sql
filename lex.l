@@ -60,8 +60,8 @@
 "," {return COMMA;}
 (char\([0-9]+\)|char|varchar|varchar\([0-9]+\)|bool|int|bigint|smallint|float) {return DATATYPE;}
 (([a-zA-Z][a-zA-Z0-9]{0,127})(\.([a-zA-Z][a-zA-Z0-9]{0,127}))?) {yylval.strval=strdup(yytext); return IDENTIFIER;}
-\'(([^\']|\\\')*[^\\])?\' {return STRING;}
-\"(([^\"]|\\\")*[^\\])?\" {return STRING;}
-[0-9]+ {return NUMBER;}
+\'(([^\']|\\\')*[^\\])?\' {yylval.strval=strdup(yytext); return STRING;}
+\"(([^\"]|\\\")*[^\\])?\" {yylval.strval=strdup(yytext); return STRING;}
+[0-9]+ {yylval.strval=strdup(yytext); return NUMBER;}
 "*" {return SELECTALL;}
 %%
