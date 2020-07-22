@@ -11,6 +11,8 @@ struct Row {
 struct Table {
   char name[20];
   char schema[10][10];
+  int cur_col;
+  int cur_row;
   struct Row instances[100];
 };
 
