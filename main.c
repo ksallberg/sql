@@ -164,9 +164,29 @@ void print_tree(struct Node* root, int level) {
   }
 }
 
-int main() {
-  int run = 1;
+int main(int argc, char *argv[]) {
+
   struct Node *top_node;
+  int run = 1;
+  
+  printf("argc: %d\n", argc);
+
+  if(argc==2) {
+    char pre_lines[3][100] =
+      {"CREATE TABLE apa (name varchar(20), weight int);",
+       "INSERT INTO apa VALUES (\"gorilla\", 200);",
+       "INSERT INTO apa VALUES (\"gibbon\", 5);"};
+
+    for(int i = 0; i < 3; i ++) {
+      printf("i: %d\n", i);
+      yy_scan_string(pre_lines[i]);
+      top_node = malloc(sizeof(struct Node));
+      yyparse(top_node);
+      trav_tree(top_node);
+      printf("on this line: %s\n", argv[1]);
+      yylex_destroy();
+    }
+  }
 
   while(run==1) {
     top_node = malloc(sizeof(struct Node));
