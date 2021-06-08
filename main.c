@@ -196,7 +196,8 @@ int main(int argc, char *argv[]) {
     size_t bufsize = 512;
     getline(&line, &bufsize, stdin);
     printf("line entered: %s\n", line);
-    if(strcmp(line, "exit")) {
+    if(strcmp(line, "exit\n") == 0) {
+      printf("bye bye\n");
       return 0;
     }
     yy_scan_string(line);
@@ -208,7 +209,7 @@ int main(int argc, char *argv[]) {
       for(int i = 0; i < 10; i ++) {
         printf("table# %d name: %s rows: %d\n", i,
                tables[i].name, tables[i].cur_row);
-        if(!strcmp(tables[i].name, "")) {
+        if(strcmp(tables[i].name, "") != 0) {
           for(int j = 0; j < 10; j ++) {
             printf("   col# %d name: %s \n", j, tables[i].schema[j]);
           }
