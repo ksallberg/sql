@@ -1,3 +1,12 @@
+# dependencies
+
+lex, yacc, gcc
+
+# compiling
+
+make all
+
+
 https://stackoverflow.com/questions/40999748/call-a-function-in-a-yacc-file-from-another-c-file
 https://github.com/ronakgadia/SQL-Parser
 http://www.hep.by/gnu/bison/Error-Reporting.html

@@ -97,8 +97,8 @@ void trav_insert_table(struct Node* node) {
 }
 
 void trav_value_list(struct Node *node,
-		     struct Table *tab,
-		     int col) {
+                     struct Table *tab,
+                     int col) {
   char *cur_value = node->child->child->str;
   /* put the current value in the corresponding
      column of the current row */
@@ -168,7 +168,8 @@ int main(int argc, char *argv[]) {
 
   struct Node *top_node;
   int run = 1;
-  
+  char *line;
+
   printf("argc: %d\n", argc);
 
   if(argc==2) {
@@ -182,23 +183,32 @@ int main(int argc, char *argv[]) {
       yy_scan_string(pre_lines[i]);
       top_node = malloc(sizeof(struct Node));
       yyparse(top_node);
+      yylex_destroy();
       trav_tree(top_node);
       printf("on this line: %s\n", argv[1]);
-      yylex_destroy();
     }
   }
 
   while(run==1) {
     top_node = malloc(sizeof(struct Node));
     printf("sql>\n");
+    /* scanf("%s\n", line); */
+    size_t bufsize = 512;
+    getline(&line, &bufsize, stdin);
+    printf("line entered: %s\n", line);
+    if(strcmp(line, "exit")) {
+      return 0;
+    }
+    yy_scan_string(line);
     yyparse(top_node);
+    yylex_destroy();
     trav_tree(top_node);
     if(debug) {
       print_tree(top_node, 0);
       for(int i = 0; i < 10; i ++) {
         printf("table# %d name: %s rows: %d\n", i,
                tables[i].name, tables[i].cur_row);
-        if(strcmp(tables[i].name, "") != 0) {
+        if(!strcmp(tables[i].name, "")) {
           for(int j = 0; j < 10; j ++) {
             printf("   col# %d name: %s \n", j, tables[i].schema[j]);
           }
