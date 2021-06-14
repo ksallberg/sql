@@ -193,11 +193,21 @@ int main(int argc, char *argv[]) {
     if(strcmp(line, "exit\n") == 0) {
       printf("bye bye\n");
       return 0;
+    } else if(strcmp(line, "debug\n")==0) {
+      if(debug) {
+	debug = 0;
+	printf("debug stopped! \n");
+      } else {
+	printf("debug started\n");
+	debug = 1;
+      }
+      continue;
+    } else {
+      yy_scan_string(line);
+      yyparse(top_node);
+      yylex_destroy();
+      trav_tree(top_node);
     }
-    yy_scan_string(line);
-    yyparse(top_node);
-    yylex_destroy();
-    trav_tree(top_node);
     if(debug) {
       print_tree(top_node, 0);
       for(int i = 0; i < 10; i ++) {

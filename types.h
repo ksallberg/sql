@@ -16,6 +16,4 @@ struct Table {
   struct Row instances[100];
 };
 
-struct Node* makeNode(char* s);
-
-void printTree(struct Node* root,int level);
+void print_tree(struct Node* root,int level);
