@@ -179,13 +179,11 @@ int main(int argc, char *argv[]) {
        "INSERT INTO apa VALUES (\"gibbon\", 5);"};
 
     for(int i = 0; i < 3; i ++) {
-      printf("i: %d\n", i);
       yy_scan_string(pre_lines[i]);
       top_node = malloc(sizeof(struct Node));
       yyparse(top_node);
       yylex_destroy();
       trav_tree(top_node);
-      printf("on this line: %s\n", argv[1]);
     }
   }
 
@@ -195,7 +193,6 @@ int main(int argc, char *argv[]) {
     /* scanf("%s\n", line); */
     size_t bufsize = 512;
     getline(&line, &bufsize, stdin);
-    printf("line entered: %s\n", line);
     if(strcmp(line, "exit\n") == 0) {
       printf("bye bye\n");
       return 0;
