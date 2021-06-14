@@ -1,4 +1,5 @@
 all:
 	lex lex.l
 	yacc -d yacc.y
-	gcc lex.yy.c y.tab.c main.c -ll -ly -o db
+	gcc -c double_link.c -o list.o
+	gcc lex.yy.c y.tab.c main.c list.o -ll -ly -o db

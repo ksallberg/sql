@@ -17,3 +17,5 @@ struct Table {
 };
 
 void print_tree(struct Node* root,int level);
+
+struct Node* mk_node(char* s);

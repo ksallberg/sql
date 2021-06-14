@@ -1,7 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "types.h"
+#include "list.h"
+
+List *tabs;
 
 // CREATE TABLE apa (name varchar(20), weight int);
 // INSERT INTO apa VALUES ("gorilla", 200);
@@ -12,6 +16,8 @@
 int debug = 0;
 int cur_table = 0;
 struct Table tables[10];
+
+
 
 void trav_tree(struct Node* node) {
   if(strcmp(node->str, "program") == 0) {
@@ -169,6 +175,14 @@ int main(int argc, char *argv[]) {
   struct Node *top_node;
   int run = 1;
   char *line;
+
+  tabs = l_create();
+  l_add(tabs, 1);
+  l_add(tabs, 10);
+  l_add(tabs, 40);
+
+  int list_size = l_size(tabs);
+  printf("my list size is: %d\n", list_size);
 
   if(argc==2) {
     char pre_lines[3][100] =
