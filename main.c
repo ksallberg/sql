@@ -170,8 +170,6 @@ int main(int argc, char *argv[]) {
   int run = 1;
   char *line;
 
-  printf("argc: %d\n", argc);
-
   if(argc==2) {
     char pre_lines[3][100] =
       {"CREATE TABLE apa (name varchar(20), weight int);",
@@ -190,7 +188,6 @@ int main(int argc, char *argv[]) {
   while(run==1) {
     top_node = malloc(sizeof(struct Node));
     printf("sql>\n");
-    /* scanf("%s\n", line); */
     size_t bufsize = 512;
     getline(&line, &bufsize, stdin);
     if(strcmp(line, "exit\n") == 0) {
