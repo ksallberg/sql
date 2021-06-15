@@ -19,4 +19,22 @@ struct Table {
 struct Table *get_table_by_name(char *wanted_name);
 void print_tree(struct Node* root,int level);
 
-struct Node* mk_node(char* s);
+void trav_program(struct Node* node);
+void trav_tab_stmt(struct Node* node);
+void trav_query_stmt(struct Node* node);
+void trav_select(struct Node* node);
+void trav_insert_table(struct Node* node);
+
+void trav_value_list(struct Node *node,
+                     struct Table *tab,
+                     int col);
+
+void trav_create_table(struct Node *node);
+
+void trav_create_table_col(int place,
+			   struct Node *node,
+			   struct Table *new_table);
+
+void trav_db_stmt(struct Node *node);
+
+struct Node *mk_node(char *s);
