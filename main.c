@@ -179,6 +179,17 @@ void print_tree(struct Node* root, int level) {
   }
 }
 
+void destroy_db() {
+  struct l_element *it = tabs->head;
+  while(tabs->size > 0) {
+    // remove the element from the list
+    struct Table *tab_to_delete = l_remove(tabs);
+
+    // delete the table itself
+    free(tab_to_delete);
+  }
+}
+
 int main(int argc, char *argv[]) {
 
   struct Node *top_node;
@@ -208,6 +219,7 @@ int main(int argc, char *argv[]) {
     size_t bufsize = 512;
     getline(&line, &bufsize, stdin);
     if(strcmp(line, "exit\n") == 0) {
+      destroy_db();
       printf("bye bye\n");
       return 0;
     } else if(strcmp(line, "debug\n")==0) {
@@ -242,4 +254,6 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+
+  destroy_db();
 }
