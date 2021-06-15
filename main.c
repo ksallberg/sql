@@ -17,8 +17,6 @@ int debug = 0;
 int cur_table = 0;
 struct Table tables[10];
 
-
-
 void trav_tree(struct Node* node) {
   if(strcmp(node->str, "program") == 0) {
     trav_program(node->child);
@@ -67,11 +65,7 @@ void trav_select(struct Node* node) {
          selector, table_name);
   */
 
-  for(int i = 0; i < 10; i ++) {
-    if(strcmp(tables[i].name, table_name) == 0) {
-      table = &tables[i];
-    }
-  }
+  table = get_table_by_name(table_name);
 
   printf("| ");
   for(int i = 0; i <= table->cur_col; i ++) {
@@ -88,15 +82,27 @@ void trav_select(struct Node* node) {
   }
 }
 
+/*
+  Returns pointer to table if found, NULL if not found
+*/
+struct Table *get_table_by_name(char *wanted_name) {
+  struct l_element *cur = tabs->head;
+  struct Table *ret_val = NULL;
+  while(cur != NULL) {
+    struct Table *look_at_tab = cur->value;
+    if(strcmp(look_at_tab->name, wanted_name) == 0) {
+      ret_val = cur->value;
+      break;
+    }
+    cur = cur->next;
+  }
+  return ret_val;
+}
+
 void trav_insert_table(struct Node* node) {
   char *table_name = node->sibling->str;
   struct Node *value_list = node->sibling->sibling->sibling->sibling;
-  struct Table *table;
-  for(int i = 0; i < 10; i ++) {
-    if(strcmp(tables[i].name, table_name) == 0) {
-      table = &tables[i];
-    }
-  }
+  struct Table *table = get_table_by_name(table_name);
 
   trav_value_list(value_list, table, 0);
   table->cur_row++;
@@ -110,33 +116,44 @@ void trav_value_list(struct Node *node,
      column of the current row */
   strcpy(tab->instances[tab->cur_row].col[col], cur_value);
   node = node->child;
-  while(node != NULL && strcmp(node->str, "valuelist")!=0) {
+  while(node != NULL && strcmp(node->str, "valuelist") != 0) {
     node = node->sibling;
   }
-  if(node!=NULL) {
+  if(node != NULL) {
     trav_value_list(node, tab, col+1);
   }
 }
 
 void trav_create_table(struct Node *node) {
   struct Node *table_name = node->sibling->sibling;
+  struct Table *new_table = malloc(sizeof(struct Table));
+  strcpy(new_table->name, table_name->str);
   strcpy(tables[cur_table].name, table_name->str);
   tables[cur_table].cur_row = 0;
   tables[cur_table].cur_col = 0;
-  trav_create_table_col(0, table_name->sibling->sibling);
+  new_table->cur_row=0;
+  new_table->cur_col=0;
+  l_add(tabs, new_table);
+  trav_create_table_col(0,
+			table_name->sibling->sibling,
+			new_table);
   cur_table++;
 }
 
-void trav_create_table_col(int place, struct Node *node) {
+void trav_create_table_col(int place,
+			   struct Node *node,
+			   struct Table *new_table) {
   struct Node *col_name = node->child->str;
   strcpy(tables[cur_table].schema[place], col_name);
+  strcpy(new_table->schema[place], col_name);
+  new_table->cur_col = place;
   tables[cur_table].cur_col = place;
   node = node->child;
   while(node != NULL && strcmp(node->str, "declare_col")!=0) {
     node = node->sibling;
   }
   if(node!=NULL) {
-    trav_create_table_col(place+1, node);
+    trav_create_table_col(place+1, node, new_table);
   }
 }
 
@@ -153,18 +170,18 @@ void print_tree(struct Node* root, int level) {
   }
   if(root->str[0] >= 65 && root->str[0]<=90) {
     printf("\033[01;33m");
-    printf("-%s\n",root->str);
+    printf("-%s\n", root->str);
     printf("\033[0m");
   }
   else {
     printf("\033[0;32m");
-    printf("-%s\n",root->str);
+    printf("-%s\n", root->str);
     printf("\033[0m");
   }
   if(root->child!=NULL) {
     root = root->child;
     while(root!=NULL) {
-      print_tree(root,level+1);
+      print_tree(root, level+1);
       root = root->sibling;
     }
   }
@@ -177,12 +194,6 @@ int main(int argc, char *argv[]) {
   char *line;
 
   tabs = l_create();
-  l_add(tabs, 1);
-  l_add(tabs, 10);
-  l_add(tabs, 40);
-
-  int list_size = l_size(tabs);
-  printf("my list size is: %d\n", list_size);
 
   if(argc==2) {
     char pre_lines[3][100] =
@@ -224,14 +235,18 @@ int main(int argc, char *argv[]) {
     }
     if(debug) {
       print_tree(top_node, 0);
-      for(int i = 0; i < 10; i ++) {
+      struct l_element *it = tabs->head;
+      struct Table *cur_tab;
+      for(int i = 0; i < tabs->size; i ++) {
+	cur_tab = it->value;
         printf("table# %d name: %s rows: %d\n", i,
-               tables[i].name, tables[i].cur_row);
-        if(strcmp(tables[i].name, "") != 0) {
+               cur_tab->name, cur_tab->cur_row);
+        if(strcmp(cur_tab->name, "") != 0) {
           for(int j = 0; j < 10; j ++) {
-            printf("   col# %d name: %s \n", j, tables[i].schema[j]);
+            printf("   col# %d name: %s \n", j, cur_tab->schema[j]);
           }
         }
+	it = it->next;
       }
     }
   }
