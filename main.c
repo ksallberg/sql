@@ -65,6 +65,10 @@ void trav_select(struct Node* node) {
   */
 
   table = get_table_by_name(table_name);
+  if(table == NULL) {
+    printf("No such table name.\n");
+    return;
+  }
 
   printf("| ");
   for(int i = 0; i <= table->cur_col; i ++) {
