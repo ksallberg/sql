@@ -14,8 +14,6 @@ List *tabs;
 // SELECT age FROM apa;
 
 int debug = 0;
-int cur_table = 0;
-struct Table tables[10];
 
 void trav_tree(struct Node* node) {
   if(strcmp(node->str, "program") == 0) {
@@ -128,26 +126,20 @@ void trav_create_table(struct Node *node) {
   struct Node *table_name = node->sibling->sibling;
   struct Table *new_table = malloc(sizeof(struct Table));
   strcpy(new_table->name, table_name->str);
-  strcpy(tables[cur_table].name, table_name->str);
-  tables[cur_table].cur_row = 0;
-  tables[cur_table].cur_col = 0;
   new_table->cur_row=0;
   new_table->cur_col=0;
   l_add(tabs, new_table);
   trav_create_table_col(0,
 			table_name->sibling->sibling,
 			new_table);
-  cur_table++;
 }
 
 void trav_create_table_col(int place,
 			   struct Node *node,
 			   struct Table *new_table) {
   struct Node *col_name = node->child->str;
-  strcpy(tables[cur_table].schema[place], col_name);
   strcpy(new_table->schema[place], col_name);
   new_table->cur_col = place;
-  tables[cur_table].cur_col = place;
   node = node->child;
   while(node != NULL && strcmp(node->str, "declare_col")!=0) {
     node = node->sibling;
