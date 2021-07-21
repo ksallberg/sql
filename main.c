@@ -135,13 +135,13 @@ void trav_create_table(struct Node *node) {
   new_table->cur_col=0;
   l_add(tabs, new_table);
   trav_create_table_col(0,
-			table_name->sibling->sibling,
-			new_table);
+                        table_name->sibling->sibling,
+                        new_table);
 }
 
 void trav_create_table_col(int place,
-			   struct Node *node,
-			   struct Table *new_table) {
+                           struct Node *node,
+                           struct Table *new_table) {
   struct Node *col_name = node->child->str;
   strcpy(new_table->schema[place], col_name);
   new_table->cur_col = place;
@@ -229,11 +229,11 @@ int main(int argc, char *argv[]) {
       return 0;
     } else if(strcmp(line, "debug\n")==0) {
       if(debug) {
-	debug = 0;
-	printf("debug stopped! \n");
+        debug = 0;
+        printf("debug stopped! \n");
       } else {
-	printf("debug started\n");
-	debug = 1;
+        printf("debug started\n");
+        debug = 1;
       }
       continue;
     } else {
@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
       struct l_element *it = tabs->head;
       struct Table *cur_tab;
       for(int i = 0; i < tabs->size; i ++) {
-	cur_tab = it->value;
+        cur_tab = it->value;
         printf("table# %d name: %s rows: %d\n", i,
                cur_tab->name, cur_tab->cur_row);
         if(strcmp(cur_tab->name, "") != 0) {
@@ -255,7 +255,7 @@ int main(int argc, char *argv[]) {
             printf("   col# %d name: %s \n", j, cur_tab->schema[j]);
           }
         }
-	it = it->next;
+        it = it->next;
       }
     }
   }
