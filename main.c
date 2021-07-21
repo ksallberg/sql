@@ -8,12 +8,6 @@
 
 List *tabs;
 
-// CREATE TABLE apa (name varchar(20), weight int);
-// INSERT INTO apa VALUES ("gorilla", 200);
-// INSERT INTO apa VALUES ("gibbon", 5);
-// SELECT * FROM apa;
-// SELECT age FROM apa;
-
 int debug = 0;
 
 void trav_tree(struct Node* node) {
@@ -59,10 +53,9 @@ void trav_select(struct Node* node) {
   struct Table *table;
   char *selector = select_col->child->child->child->str;
   char *table_name = from_stmt->child->sibling->child->str;
-  /*
+
   printf("trav_select, what to select: %s table name: %s \n",
          selector, table_name);
-  */
 
   table = get_table_by_name(table_name);
   if(table == NULL) {
@@ -72,14 +65,22 @@ void trav_select(struct Node* node) {
 
   printf("| ");
   for(int i = 0; i <= table->cur_col; i ++) {
-    printf("%s | ", table->schema[i]);
+    /* check that we only print the column that asked for */
+    if(strcmp(selector, table->schema[i]) == 0 ||
+       strcmp(selector, "SELECTALL") == 0) {
+      printf("%s | ", table->schema[i]);
+    }
   }
   printf("\n");
 
   for(int i = 0; i < table->cur_row; i ++) {
     printf("| ");
     for(int j = 0; j <= table->cur_col; j ++) {
-      printf("%s | ", table->instances[i].col[j]);
+      /* check that we only print the column that asked for */
+      if(strcmp(selector, table->schema[j]) == 0 ||
+         strcmp(selector, "SELECTALL") == 0) {
+        printf("%s | ", table->instances[i].col[j]);
+      }
     }
     printf("\n");
   }

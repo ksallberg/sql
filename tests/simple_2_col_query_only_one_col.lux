@@ -1,0 +1,26 @@
+[doc test that a simple two column table can be created and queried]
+
+[shell db]
+    !../db ../init_files/simple_two_col.txt
+
+    ???sql>
+    !SELECT name FROM apa;
+    """???
+    | name | 
+    | "gorilla" | 
+    | "gibbon" | 
+    """
+    ???sql>
+
+    !SELECT weight FROM apa;
+    """???
+    | weight | 
+    | 400 | 
+    | 5 | 
+    """
+    ???sql>
+
+    !exit
+    ???bye bye
+    !exit
+    [endshell 0]
