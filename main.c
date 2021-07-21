@@ -200,17 +200,19 @@ int main(int argc, char *argv[]) {
   struct Node *top_node;
   int run = 1;
   char *line;
+  FILE *init_file;
+  char init_file_line[500];
 
   tabs = l_create();
 
   if(argc==2) {
-    char pre_lines[3][100] =
-      {"CREATE TABLE apa (name varchar(20), weight int);",
-       "INSERT INTO apa VALUES (\"gorilla\", 200);",
-       "INSERT INTO apa VALUES (\"gibbon\", 5);"};
-
-    for(int i = 0; i < 3; i ++) {
-      yy_scan_string(pre_lines[i]);
+    printf("hej: %s \n", argv[1]);
+    if((init_file = fopen(argv[1], "r")) == NULL) {
+      printf("Could not open init file\n");
+      exit(1);
+    }
+    while(fgets(init_file_line, 500, init_file) != NULL) {
+      yy_scan_string(init_file_line);
       top_node = malloc(sizeof(struct Node));
       yyparse(top_node);
       yylex_destroy();

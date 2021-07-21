@@ -6,3 +6,6 @@ all:
 
 clean:
 	git clean -ffxd
+
+run_with_init_file:
+	./db ./init_files/simple_two_col.txt
