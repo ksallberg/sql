@@ -1,4 +1,6 @@
-all:
+all: build
+
+build:
 	lex lex.l
 	yacc -d yacc.y
 	gcc -c double_link.c -o list.o
@@ -9,3 +11,6 @@ clean:
 
 run_with_init_file:
 	./db ./init_files/simple_two_col.txt
+
+test: build
+	lux tests
