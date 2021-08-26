@@ -32,8 +32,8 @@ void trav_value_list(struct Node *node,
 void trav_create_table(struct Node *node);
 
 void trav_create_table_col(int place,
-			   struct Node *node,
-			   struct Table *new_table);
+                           struct Node *node,
+                           struct Table *new_table);
 
 void trav_db_stmt(struct Node *node);
 
