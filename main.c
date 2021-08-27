@@ -5,10 +5,37 @@
 
 #include "types.h"
 #include "list.h"
+#include "btree.h"
 
 List *tabs;
 
 int debug = 0;
+
+struct user {
+    char *first;
+    char *last;
+    int age;
+};
+
+int user_compare(const void *a, const void *b, void *udata) {
+    const struct user *ua = a;
+    const struct user *ub = b;
+    int cmp = strcmp(ua->last, ub->last);
+    if (cmp == 0) {
+        cmp = strcmp(ua->first, ub->first);
+    }
+    return cmp;
+}
+
+bool user_iter(const void *a, void *udata) {
+    const struct user *user = a;
+    printf("%s %s (age=%d)\n", user->first, user->last, user->age);
+    return true;
+}
+
+
+
+
 
 void trav_tree(struct Node* node) {
   if(strcmp(node->str, "program") == 0) {
@@ -204,10 +231,13 @@ int main(int argc, char *argv[]) {
   FILE *init_file;
   char init_file_line[500];
 
+  struct btree *tr = btree_new(sizeof(struct user), 0, user_compare, NULL);
   tabs = l_create();
+  printf("HAHAHHA%d \n", argc);
 
   if(argc==2) {
-    printf("hej: %s \n", argv[1]);
+
+    printf("hello: %s \n", argv[1]);
     if((init_file = fopen(argv[1], "r")) == NULL) {
       printf("Could not open init file\n");
       exit(1);
@@ -227,8 +257,27 @@ int main(int argc, char *argv[]) {
     size_t bufsize = 512;
     getline(&line, &bufsize, stdin);
     if(strcmp(line, "exit\n") == 0) {
-      destroy_db();
+      /* destroy_db(); */
       printf("bye bye\n");
+      return 0;
+    } else if(strcmp(line, "tree\n")==0) {
+      printf("hello");
+
+      /* struct btree *tr = btree_new(sizeof(struct db_index), 0, */
+      /*                              index_compare, NULL); */
+
+      /* struct btree *tr = btree_new(sizeof(struct user), 0, user_compare, NULL); */
+      /* struct btree *tr = btree_new(sizeof(struct user), 0, user_compare, NULL); */
+      /* btree_set(tr, &(struct db_index){.num=1}); */
+      /* btree_set(tr, &(struct db_index){.num=2}); */
+      /* btree_set(tr, &(struct db_index){.num=42}); */
+      /* btree_set(tr, &(struct db_index){.num=5}); */
+
+      /* struct db_index *index; */
+      /* btree_ascend(tr, NULL, index_iter, NULL); */
+
+      /* btree_free(tr); */
+
       return 0;
     } else if(strcmp(line, "debug\n")==0) {
       if(debug) {
