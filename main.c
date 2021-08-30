@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "y.tab.h"
 
 #include "types.h"
@@ -204,50 +205,47 @@ int mycomp(void *key1, void *key2) {
 int main(int argc, char *argv[]) {
 
   struct Node *top_node;
+  struct btree *mybtree;
   int run = 1;
   char *line;
-  FILE *init_file;
+  size_t mybufsize = 512;
+  const FILE *init_file;
   char init_file_line[500];
-  struct btree *mybtree;
 
   tabs = l_create();
 
-  /* if(argc==2) { */
-  /*   printf("hej: %s \n", argv[1]); */
-  /*   if((init_file = fopen(argv[1], "r")) == NULL) { */
-  /*     printf("Could not open init file\n"); */
-  /*     exit(1); */
-  /*   } */
-  /*   while(fgets(init_file_line, 500, init_file) != NULL) { */
-  /*     yy_scan_string(init_file_line); */
-  /*     top_node = (struct Node*) malloc(sizeof(struct Node)); */
-  /*     yyparse(top_node); */
-  /*     yylex_destroy(); */
-  /*     trav_tree(top_node); */
-  /*   } */
-  /* } */
-
+  printf("argc %d\n", argc);
+  if(argc==2) {
+    printf("hej: %s \n", argv[1]);
+    if((init_file = fopen(argv[1], "r")) == NULL) {
+      printf("Could not open init file\n");
+      exit(1);
+    }
+    while(fgets(init_file_line, 500, init_file) != NULL) {
+      yy_scan_string(init_file_line);
+      top_node = (struct Node*) malloc(sizeof(struct Node));
+      yyparse(top_node);
+      yylex_destroy();
+      trav_tree(top_node);
+    }
+  }
+  line = (char *) malloc(mybufsize * sizeof(char));
   while(run==1) {
-    top_node = (struct Node *) malloc(sizeof(struct Node));
-      /* mybtree = (struct btree *) malloc(sizeof(struct btree)); */
+    top_node = (struct Node*) malloc(sizeof(struct Node));
     printf("sql>\n");
-    size_t bufsize = 512;
-    getline(&line, &bufsize, stdin);
+    getline(&line, &mybufsize, stdin);
     if(strcmp(line, "exit\n") == 0) {
       destroy_db();
       printf("bye bye\n");
       return 0;
-
-
     } else if(strcmp(line, "tree\n") == 0) {
-      
+      mybtree = (struct btree *) malloc(sizeof(struct btree));
 
-      /* btree_init(&mybtree, mycomp, 5); */
-      
+      btree_init(&mybtree, mycomp, 5);
+
       printf("tree bye bye\n");
       return 0;
 
-      
     } else if(strcmp(line, "debug\n")==0) {
       if(debug) {
         debug = 0;
@@ -282,4 +280,5 @@ int main(int argc, char *argv[]) {
   }
 
   destroy_db();
+  return 0;
 }

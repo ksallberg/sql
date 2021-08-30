@@ -1,3 +1,5 @@
+/* https://github.com/janneku/btree */
+
 #ifndef _BTREE_H
 #define _BTREE_H
 

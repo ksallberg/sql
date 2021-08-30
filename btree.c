@@ -1,3 +1,5 @@
+/* https://github.com/janneku/btree */
+
 #include "btree.h"
 #include <string.h>
 #include <stdlib.h>
