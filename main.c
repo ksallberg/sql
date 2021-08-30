@@ -5,6 +5,7 @@
 
 #include "types.h"
 #include "list.h"
+#include "btree.h"
 
 List *tabs;
 
@@ -196,6 +197,10 @@ void destroy_db() {
   }
 }
 
+int mycomp(void *key1, void *key2) {
+  return 1;
+}
+
 int main(int argc, char *argv[]) {
 
   struct Node *top_node;
@@ -203,26 +208,28 @@ int main(int argc, char *argv[]) {
   char *line;
   FILE *init_file;
   char init_file_line[500];
+  struct btree *mybtree;
 
   tabs = l_create();
 
-  if(argc==2) {
-    printf("hej: %s \n", argv[1]);
-    if((init_file = fopen(argv[1], "r")) == NULL) {
-      printf("Could not open init file\n");
-      exit(1);
-    }
-    while(fgets(init_file_line, 500, init_file) != NULL) {
-      yy_scan_string(init_file_line);
-      top_node = malloc(sizeof(struct Node));
-      yyparse(top_node);
-      yylex_destroy();
-      trav_tree(top_node);
-    }
-  }
+  /* if(argc==2) { */
+  /*   printf("hej: %s \n", argv[1]); */
+  /*   if((init_file = fopen(argv[1], "r")) == NULL) { */
+  /*     printf("Could not open init file\n"); */
+  /*     exit(1); */
+  /*   } */
+  /*   while(fgets(init_file_line, 500, init_file) != NULL) { */
+  /*     yy_scan_string(init_file_line); */
+  /*     top_node = (struct Node*) malloc(sizeof(struct Node)); */
+  /*     yyparse(top_node); */
+  /*     yylex_destroy(); */
+  /*     trav_tree(top_node); */
+  /*   } */
+  /* } */
 
   while(run==1) {
-    top_node = malloc(sizeof(struct Node));
+    top_node = (struct Node *) malloc(sizeof(struct Node));
+      /* mybtree = (struct btree *) malloc(sizeof(struct btree)); */
     printf("sql>\n");
     size_t bufsize = 512;
     getline(&line, &bufsize, stdin);
@@ -230,6 +237,17 @@ int main(int argc, char *argv[]) {
       destroy_db();
       printf("bye bye\n");
       return 0;
+
+
+    } else if(strcmp(line, "tree\n") == 0) {
+      
+
+      /* btree_init(&mybtree, mycomp, 5); */
+      
+      printf("tree bye bye\n");
+      return 0;
+
+      
     } else if(strcmp(line, "debug\n")==0) {
       if(debug) {
         debug = 0;
