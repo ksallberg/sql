@@ -77,13 +77,11 @@ program : database_stmt ';' {
   $$ = mk_node("program");
   $$->child = $1;
   *top_node = *$$;
-  return;
  }
 | table_stmt ';' {
   $$ = mk_node("program");
   $$->child = $1;
   *top_node = *$$;
-  return;
 };
 
 database_stmt : create_db {
@@ -148,7 +146,7 @@ create_table : CREATE TABLE IDENTIFIER '(' declare_col ')' {
   $$ = mk_node("create_table");
   $1 = mk_node("CREATE");
   $2 = mk_node("TABLE");
-  $3 = mk_node($3);
+  $3 = mk_node((char*) $3);
   $4 = mk_node("(");
   $6 = mk_node(")");
   $$->child = $1;
@@ -173,7 +171,7 @@ create_table : CREATE TABLE IDENTIFIER '(' declare_col ')' {
 
 declare_col: IDENTIFIER DATATYPE COMMA declare_col {
   $$ = mk_node("declare_col");
-  $1 = mk_node($1);
+  $1 = mk_node((char*) $1);
   //  free(yylval.strval);
   $2 = mk_node("DATATYPE");
   $3 = mk_node("COMMA");
@@ -184,7 +182,7 @@ declare_col: IDENTIFIER DATATYPE COMMA declare_col {
  }
 | IDENTIFIER DATATYPE {
   $$ = mk_node("declare_col");
-  $1 = mk_node($1);
+  $1 = mk_node((char *) $1);
   //  $1 = mk_node("IDENTIFIER");
   $2 = mk_node("DATATYPE");
   $$->child = $1;
@@ -228,7 +226,7 @@ union_types : UNION {
 insert_table : INSERT_INTO IDENTIFIER VALUES '(' valuelist ')' {
   $$ = mk_node("insert_table");
   $1 = mk_node("INSERT_INTO");
-  $2 = mk_node($2);
+  $2 = mk_node((char *) $2);
   $3 = mk_node("VALUES");
   $4 = mk_node("(");
   $6 = mk_node(")");
@@ -340,7 +338,7 @@ from_stmt : FROM origintable {
 
 origintable : IDENTIFIER rename {
   $$ = mk_node("origintable");
-  $1 = mk_node($1);//yylval.strval);
+  $1 = mk_node((char *) $1);//yylval.strval);
   //  free(yylval.strval);
   $$->child = $1;
   $1->sibling = $2;
@@ -526,7 +524,7 @@ diffcolumns : SELECTALL {
  }
 | IDENTIFIER {
   $$ = mk_node("diffcolumns");
-  $1 = mk_node($1);
+  $1 = mk_node((char *) $1);
   //  free(yylval.strval);
   // $1 = mk_node("IDENTIFIER");
   $$->child = $1;
@@ -715,12 +713,12 @@ ispresent : IN {
 
 value : NUMBER {
   $$ = mk_node("value");
-  $1 = mk_node($1);
+  $1 = mk_node((char *) $1);
   $$->child = $1;
  }
 | STRING {
   $$ = mk_node("value");
-  $1 = mk_node($1);
+  $1 = mk_node((char *) $1);
   $$->child = $1;
   };
 

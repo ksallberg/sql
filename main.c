@@ -145,7 +145,7 @@ void trav_create_table(struct Node *node) {
 void trav_create_table_col(int place,
                            struct Node *node,
                            struct Table *new_table) {
-  struct Node *col_name = node->child->str;
+  char *col_name = node->child->str;
   strcpy(new_table->schema[place], col_name);
   new_table->cur_col = place;
   node = node->child;
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
   int run = 1;
   char *line;
   size_t mybufsize = 512;
-  const FILE *init_file;
+  FILE *init_file;
   char init_file_line[500];
 
   tabs = l_create();
