@@ -8,6 +8,14 @@
 #include "list.h"
 #include "btree.h"
 
+// to quiet compiler warnings
+#ifndef YY_TYPEDEF_YY_BUFFER_STATE
+#define YY_TYPEDEF_YY_BUFFER_STATE
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
+int yylex_destroy ( void );
+#endif
+
 List *tabs;
 
 int debug = 0;

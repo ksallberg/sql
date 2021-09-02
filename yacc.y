@@ -5,6 +5,13 @@
 #include "types.h"
 %}
 
+%{
+int yylex();
+void yyerror(struct Node *n, char *s);
+%}
+
+
+
 %start program
 %token <node> CREATE
 %token <node> DELETE
