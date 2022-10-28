@@ -4,8 +4,9 @@ struct Node {
   char str[150];
 };
 
+/* max 10 cols, max 20 chars each */
 struct Row {
-  char col[10][10];
+  char col[10][20];
 };
 
 struct Table {
