@@ -6,7 +6,6 @@
 
 #include "types.h"
 #include "list.h"
-#include "btree.h"
 
 // to quiet compiler warnings
 #ifndef YY_TYPEDEF_YY_BUFFER_STATE
@@ -118,6 +117,11 @@ void trav_insert_table(struct Node* node) {
   struct Node *value_list = node->sibling->sibling->sibling->sibling;
   struct Table *table = get_table_by_name(table_name);
 
+  if(table->cur_row + 1 > table->cur_alloc_rows) {
+      table->cur_alloc_rows += 100;
+      int new_size = sizeof(struct Row) * table->cur_alloc_rows;
+      table->instances = realloc(table->instances, new_size);
+  }
   trav_value_list(value_list, table, 0);
   table->cur_row++;
 }
@@ -144,6 +148,8 @@ void trav_create_table(struct Node *node) {
   strcpy(new_table->name, table_name->str);
   new_table->cur_row=0;
   new_table->cur_col=0;
+  new_table->instances = malloc(sizeof(struct Row) * 10);
+  new_table->cur_alloc_rows=10;
   l_add(tabs, new_table);
   trav_create_table_col(0,
                         table_name->sibling->sibling,
@@ -213,7 +219,6 @@ int mycomp(void *key1, void *key2) {
 int main(int argc, char *argv[]) {
 
   struct Node *top_node;
-  struct btree *mybtree;
   int run = 1;
   char *line;
   size_t mybufsize = 512;
@@ -246,14 +251,6 @@ int main(int argc, char *argv[]) {
       destroy_db();
       printf("bye bye\n");
       return 0;
-    } else if(strcmp(line, "tree\n") == 0) {
-      mybtree = (struct btree *) malloc(sizeof(struct btree));
-
-      btree_init(&mybtree, mycomp, 5);
-
-      printf("tree bye bye\n");
-      return 0;
-
     } else if(strcmp(line, "debug\n")==0) {
       if(debug) {
         debug = 0;

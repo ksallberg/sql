@@ -13,7 +13,8 @@ struct Table {
   char schema[10][10];
   int cur_col;
   int cur_row;
-  struct Row instances[100];
+  int cur_alloc_rows;
+  struct Row *instances;
 };
 
 struct Table *get_table_by_name(char *wanted_name);
