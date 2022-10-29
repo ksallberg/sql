@@ -3,12 +3,73 @@
 [shell db]
     !../db ../init_files/simple_two_col.txt
     ???sql>
+
     !SELECT * FROM apa;
     """???
     | name | weight | 
     | "gorilla" | 400 | 
-    | "gibbon" | 5 |
+    | "gibbon" | 5 | 
     """
+    ???sql>
+
+    !SELECT name FROM apa;
+    """???
+    | name | 
+    | "gorilla" | 
+    | "gibbon" | 
+    """
+    ???sql>
+
+    !SELECT weight FROM apa;
+    """???
+    | weight | 
+    | 400 | 
+    | 5 | 
+    """
+    ???sql>
+
+    !SELECT * FROM apa WHERE name="gibbon";
+    """???
+    | name | weight | 
+    | "gibbon" | 5 | 
+    """
+    ???sql>
+
+    !SELECT * FROM apa WHERE name="gorilla";
+    """???
+    | name | weight | 
+    | "gorilla" | 400 | 
+    """
+    ???sql>
+
+    !SELECT name FROM apa WHERE name="gibbon";
+    """???
+    | name | 
+    | "gibbon" | 
+    """
+    ???sql>
+
+    !SELECT name FROM apa WHERE name="gorilla";
+    """???
+    | name | 
+    | "gorilla" | 
+    """
+    ???sql>
+
+    !SELECT weight FROM apa WHERE name="gibbon";
+    """???
+    | weight | 
+    | 5 | 
+    """
+    ???sql>
+
+    !SELECT weight FROM apa WHERE name="gorilla";
+    """???
+    | weight | 
+    | 400 | 
+    """
+    ???sql>
+
     !exit
     ???bye bye
     !exit
