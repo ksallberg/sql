@@ -10,9 +10,15 @@ make all
 
 # run
 
-./db init
+./db init_files/simple_two_col.txt
 
 > SELECT * FROM apa;
+
+```
+| name | weight |
+| "gorilla" | 400 |
+| "gibbon" | 5 |
+```
 
 # help found in the following places:
 
