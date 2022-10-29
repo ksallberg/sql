@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "y.tab.h"
 
@@ -18,6 +19,19 @@ int yylex_destroy ( void );
 List *tabs;
 
 int debug = 0;
+
+int selector_match(char *selector, char *column_name) {
+    return (strcmp(selector, "SELECTALL") == 0) ||
+        (strcmp(selector, column_name) == 0);
+}
+
+int where_match(char *selector, char *where) {
+    if(where == NULL) {
+        return true;
+    }
+
+    return strcmp(where, selector) == 0;
+}
 
 void trav_tree(struct Node* node) {
   if(strcmp(node->str, "program") == 0) {
@@ -59,12 +73,21 @@ void trav_select(struct Node* node) {
   struct Node *distinct = node->sibling;
   struct Node *select_col = distinct->sibling;
   struct Node *from_stmt = select_col->sibling;
+  struct Node *where_stmt = from_stmt->sibling;
   struct Table *table;
   char *selector = select_col->child->child->child->str;
   char *table_name = from_stmt->child->sibling->child->str;
+  char *where_col = NULL;
+  char *where_val = NULL;
 
-  printf("trav_select, what to select: %s table name: %s \n",
-         selector, table_name);
+  if(where_stmt->child != NULL) {
+      struct Node *where_id=where_stmt->child->child->child->child;
+      where_col=where_id->child->str;
+      where_val=where_id->sibling->sibling->child->str;
+  }
+
+  printf("trav_select, what to select: %s table name: %s where: (%s,%s) \n",
+         selector, table_name, where_col, where_val);
 
   table = get_table_by_name(table_name);
   if(table == NULL) {
@@ -75,8 +98,7 @@ void trav_select(struct Node* node) {
   printf("| ");
   for(int i = 0; i <= table->cur_col; i ++) {
     /* check that we only print the column that asked for */
-    if(strcmp(selector, table->schema[i]) == 0 ||
-       strcmp(selector, "SELECTALL") == 0) {
+    if(selector_match(selector, table->schema[i])) {
       printf("%s | ", table->schema[i]);
     }
   }
@@ -86,8 +108,8 @@ void trav_select(struct Node* node) {
     printf("| ");
     for(int j = 0; j <= table->cur_col; j ++) {
       /* check that we only print the column that asked for */
-      if(strcmp(selector, table->schema[j]) == 0 ||
-         strcmp(selector, "SELECTALL") == 0) {
+        if(selector_match(selector, table->schema[j]) &&
+           where_match(table->instances[i].col[j], where_val)) {
         printf("%s | ", table->instances[i].col[j]);
       }
     }

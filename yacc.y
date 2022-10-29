@@ -574,7 +574,7 @@ conditions : relational_stmt logical_op conditions {
 
 relational_stmt : IDENTIFIER rel_oper value {
   $$ = mk_node("relational_stmt");
-  $1 = mk_node("IDENTIFIER");
+  $1 = mk_node2("IDENTIFIER", $1);
   $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
@@ -930,5 +930,15 @@ struct Node* mk_node(char* s) {
   node->child = NULL;
   node->sibling = NULL;
   strcpy(node->str,s);
+  return node;
+}
+
+struct Node* mk_node2(char* s, char *child) {
+  struct Node *node = malloc(sizeof(struct Node));
+  struct Node *child_node = malloc(sizeof(struct Node));
+  node->child = child_node;
+  node->sibling = NULL;
+  strcpy(node->str, s);
+  strcpy(node->child->str, child);
   return node;
 }
