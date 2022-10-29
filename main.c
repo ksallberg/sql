@@ -88,6 +88,7 @@ void trav_select(struct Node* node) {
     char *table_name = from_stmt->child->sibling->child->str;
     char *where_col = NULL;
     char *where_val = NULL;
+    int cost = 0;
 
     if(where_stmt->child != NULL) {
         struct Node *where_id=where_stmt->child->child->child->child;
@@ -125,6 +126,10 @@ void trav_select(struct Node* node) {
             }
             printf("\n");
         }
+        cost ++;
+    }
+    if(debug) {
+        printf("Cost to run query: %d\n", cost);
     }
 }
 
