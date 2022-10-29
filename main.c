@@ -32,7 +32,7 @@ int where_match(struct Table *table, struct Row *row,
     }
 
     int column_position = -1;
-    for(int i = 0; i < table->cur_col; i ++) {
+    for(int i = 0; i <= table->cur_col; i ++) {
         if(strcmp(table->schema[i], where_col) == 0) {
             column_position = i;
             break;

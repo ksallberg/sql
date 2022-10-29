@@ -70,6 +70,20 @@
     """
     ???sql>
 
+    !SELECT * FROM apa WHERE weight=400;
+    """???
+    | name | weight | 
+    | "gorilla" | 400 | 
+    """
+    ???sql>
+
+    !SELECT * FROM apa WHERE weight=5;
+    """???
+    | name | weight | 
+    | "gibbon" | 5 | 
+    """
+    ???sql>
+
     !exit
     ???bye bye
     !exit
