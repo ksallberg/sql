@@ -9,6 +9,8 @@ struct Row {
   char col[10][20];
 };
 
+#include "bplus_tree.h"
+
 struct Table {
   char name[20];
   char schema[10][10];
@@ -16,6 +18,8 @@ struct Table {
   int cur_row;
   int cur_alloc_rows;
   struct Row *instances;
+  BPlusTree *indices[10];  // One possible index per column
+  int index_count;
 };
 
 struct Table *get_table_by_name(char *wanted_name);
