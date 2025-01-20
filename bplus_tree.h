@@ -26,7 +26,7 @@ void bplus_destroy(BPlusTree* tree);
 // Core operations
 void bplus_insert(BPlusTree* tree, const char* key, int row_index);
 int* bplus_search(BPlusTree* tree, const char* key, int* count);
-int* bplus_range_search(BPlusTree* tree, const char* start_key, 
+int* bplus_range_search(BPlusTree* tree, const char* start_key,
                        const char* end_key, int* count);
 
 #endif
