@@ -128,20 +128,42 @@ static BPlusNode* find_leaf(BPlusNode* node, const char* key) {
 }
 
 int* bplus_search(BPlusTree* tree, const char* key, int* count) {
+    if (!tree || !key || !count) {
+        if (count) *count = 0;
+        return NULL;
+    }
+
     BPlusNode* leaf = find_leaf(tree->root, key);
     if (!leaf) {
         *count = 0;
         return NULL;
     }
 
-    int* results = NULL;
+    // First pass to count matches
     *count = 0;
-
     for (int i = 0; i < leaf->num_keys; i++) {
         if (strcmp(leaf->keys[i], key) == 0) {
-            results = realloc(results, (*count + 1) * sizeof(int));
-            results[*count] = leaf->row_indices[i];
             (*count)++;
+        }
+    }
+
+    // If no matches found, return NULL
+    if (*count == 0) {
+        return NULL;
+    }
+
+    // Allocate exact size needed
+    int* results = malloc((*count) * sizeof(int));
+    if (!results) {
+        *count = 0;
+        return NULL;
+    }
+
+    // Second pass to fill results
+    int idx = 0;
+    for (int i = 0; i < leaf->num_keys; i++) {
+        if (strcmp(leaf->keys[i], key) == 0) {
+            results[idx++] = leaf->row_indices[i];
         }
     }
 
