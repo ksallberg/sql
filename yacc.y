@@ -574,7 +574,7 @@ conditions : relational_stmt logical_op conditions {
 
 relational_stmt : IDENTIFIER rel_oper value {
   $$ = mk_node("relational_stmt");
-  $1 = mk_node2("IDENTIFIER", $1);
+  $1 = mk_node("IDENTIFIER");
   $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
