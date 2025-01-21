@@ -6,6 +6,7 @@
 #include "y.tab.h"
 
 #include "types.h"
+#include "bplus_tree.h"
 #include "list.h"
 
 // to quiet compiler warnings
@@ -171,6 +172,12 @@ void trav_value_list(struct Node *node,
     /* put the current value in the corresponding
        column of the current row */
     strcpy(tab->instances[tab->cur_row].col[col], cur_value);
+
+    BPlusTree *btree = tab->indices[col];
+    if(btree != NULL ) {
+        bplus_insert(btree, cur_value, tab->cur_row);
+    }
+
     node = node->child;
     while(node != NULL && strcmp(node->str, "valuelist") != 0) {
         node = node->sibling;

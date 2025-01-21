@@ -1,0 +1,8 @@
+db
+.aider*
+.env
+lex.yy.c
+list.o
+tree.o
+y.tab.c
+y.tab.h
