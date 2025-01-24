@@ -23,6 +23,7 @@
 (A|a)(S|s)(C|c) {return ASC;}
 (D|d)(E|e)(S|s)(C|c) {return DESC;}
 (O|o)(N|n) {return ON;}
+(I|o)(N|n)(D|d)(E|e)(X|x) {return INDEX;}
 "ORDER BY" {return ORDER_BY;}
 (H|h)(A|a)(V|v)(I|i)(N|n)(G|g) {return HAVING;}
 "GROUP BY" {return GROUP_BY;}
