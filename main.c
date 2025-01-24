@@ -66,7 +66,6 @@ void trav_tree(struct Node* node) {
     if(strcmp(node->str, "program") == 0) {
         trav_program(node->child);
     } else {
-        print_tree(node, 4);
         printf("error! no program found\n");
     }
 }
@@ -77,6 +76,7 @@ void trav_program(struct Node* node) {
     } else if(strcmp(node->str, "database_stmt") == 0) {
         trav_db_stmt(node->child);
     } else if(strcmp(node->str, "index_stmt") == 0) {
+        printf("KOMMER HIT!!!\n");
         trav_index_stmt(node->child);
     } else {
         printf("error! faulty program\n");
@@ -280,6 +280,7 @@ void trav_db_stmt(struct Node* node) {
 }
 
 void trav_index_stmt(struct Node* node) {
+    printf("apa %s\n", node->child->str);
     if (strcmp(node->child->str, "create_index") == 0) {
         struct Node *create_node = node->child;
         char *index_name = create_node->child->sibling->sibling->str;
@@ -323,12 +324,6 @@ void print_tree(struct Node* root, int level) {
             root = root->sibling;
         }
     }
-    while(root!=NULL) {
-        root = root->sibling;
-        printf("HEJ HEJ: %s\n", root->str);
-        print_tree(root, level+1);
-    }
-
 }
 
 void create_index(struct Table *table, const char *column_name) {
