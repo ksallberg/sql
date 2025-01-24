@@ -76,7 +76,6 @@ void trav_program(struct Node* node) {
     } else if(strcmp(node->str, "database_stmt") == 0) {
         trav_db_stmt(node->child);
     } else if(strcmp(node->str, "index_stmt") == 0) {
-        printf("KOMMER HIT!!!\n");
         trav_index_stmt(node->child);
     } else {
         printf("error! faulty program\n");
@@ -234,6 +233,7 @@ void trav_value_list(struct Node *node,
 
     BPlusTree *btree = tab->indices[col];
     if(btree != NULL ) {
+        printf("Bplus insert: %s\n", cur_value);
         bplus_insert(btree, cur_value, tab->cur_row);
     }
 
@@ -281,21 +281,17 @@ void trav_db_stmt(struct Node* node) {
 
 void trav_index_stmt(struct Node* node) {
     if (strcmp(node->str, "create_index") == 0) {
-        // Skip CREATE INDEX nodes
         struct Node *index_name_node = node->child->sibling->sibling;
         struct Node *table_name_node = index_name_node->sibling->sibling;
-        struct Node *column_name_node = table_name_node->sibling->sibling->sibling;
-        
+        struct Node *column_name_node = table_name_node->sibling->sibling;
         char *index_name = index_name_node->str;
         char *table_name = table_name_node->str;
         char *column_name = column_name_node->str;
-        
         struct Table *table = get_table_by_name(table_name);
         if (table == NULL) {
             printf("Table %s not found\n", table_name);
             return;
         }
-        
         create_index(table, column_name);
     } else {
         printf("Unsupported index operation\n");
