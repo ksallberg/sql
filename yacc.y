@@ -607,16 +607,18 @@ conditions : relational_stmt logical_op conditions {
 
 relational_stmt : IDENTIFIER rel_oper value {
   $$ = mk_node("relational_stmt");
-  $1 = mk_node("IDENTIFIER");
+  $1 = mk_node((char *) $1);
   $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;
  }
 | IDENTIFIER EQUALITY_OPERATOR IDENTIFIER {
   $$ = mk_node("relational_stmt");
-  $1 = mk_node("IDENTIFIER");
+  $1 = mk_node((char *) $1);
+  /* $1 = mk_node("IDENTIFIER"); */
   $2 = mk_node("EQUALITY_OPERATOR");
-  $3 = mk_node("IDENTIFIER");
+  $3 = mk_node((char *) $3);
+  /* $3 = mk_node("IDENTIFIER"); */
   $$->child = $1;
   $1->sibling=$2;
   $2->sibling=$3;

@@ -31,30 +31,11 @@ int where_match(struct Table *table, struct Row *row,
     if(where_col == NULL) {
         return true;
     }
-
     int column_position = -1;
     for(int i = 0; i <= table->cur_col; i ++) {
         if(strcmp(table->schema[i], where_col) == 0) {
             column_position = i;
             break;
-        }
-    }
-
-    // Check if we have an index on this column
-    BPlusTree *index = table->indices[column_position];
-    if (index != NULL) {
-        int count;
-        int *matching_rows = bplus_search(index, where_val, &count);
-        if (matching_rows != NULL) {
-            // Look for current row in the results
-            for (int i = 0; i < count; i++) {
-                if (matching_rows[i] == row->row_id) {
-                    free(matching_rows);
-                    return true;
-                }
-            }
-            free(matching_rows);
-            return false;
         }
     }
 
@@ -113,9 +94,11 @@ void trav_select(struct Node* node) {
     int cost = 0;
 
     if(where_stmt->child != NULL) {
-        struct Node *where_id=where_stmt->child->child->child->child;
-        where_col=where_id->child->str;
-        where_val=where_id->sibling->sibling->child->str;
+        struct Node *conditions=where_stmt->child->child;
+        struct Node *relational_stmt=conditions->child;
+        print_tree(relational_stmt, 0);
+        where_col=relational_stmt->child->str;
+        where_val=relational_stmt->child->sibling->sibling->child->str;
     }
 
     printf("trav_select, what to select: %s table name: %s where: (%s,%s) \n",
@@ -146,33 +129,37 @@ void trav_select(struct Node* node) {
             }
         }
 
-        BPlusTree *index = table->indices[column_position];
-        if (index != NULL) {
-            int count;
-            int *matching_rows = bplus_search(index, where_val, &count);
+        /* BPlusTree *index = table->indices[column_position]; */
+        /* if (index != NULL) { */
+        /*     printf("index is used for select!\n"); */
+        /*     int count; */
+        /*     int *matching_rows = bplus_search(index, where_val, &count); */
 
-            if (matching_rows != NULL) {
-                // Print matching rows
-                for (int i = 0; i < count; i++) {
-                    int row_idx = matching_rows[i];
-                    printf("| ");
-                    for(int j = 0; j <= table->cur_col; j ++) {
-                        if(selector_match(selector, table->schema[j])) {
-                            printf("%s | ", table->instances[row_idx].col[j]);
-                        }
-                    }
-                    printf("\n");
-                }
+        /*     if (matching_rows != NULL) { */
+        /*         // Print matching rows */
+        /*         for (int i = 0; i < count; i++) { */
+        /*             int row_idx = matching_rows[i]; */
+        /*             printf("| "); */
+        /*             for(int j = 0; j <= table->cur_col; j ++) { */
+        /*                 if(selector_match(selector, table->schema[j])) { */
+        /*                     printf("%s | ", table->instances[row_idx].col[j]); */
+        /*                 } */
+        /*             } */
+        /*             printf("\n"); */
+        /*         } */
 
-                free(matching_rows);
-                if(debug) {
-                    printf("Cost to run query: %d (using index)\n", count);
-                }
-                return;
-            }
-        }
+        /*         free(matching_rows); */
+        /*         if(debug) { */
+        /*             printf("Cost to run query: %d (using index)\n", count); */
+        /*         } */
+        /*         return; */
+        /*     } */
+        /* } */
     }
 
+    if(debug) {
+        printf("index NOT used for select, full scan!\n");
+    }
     // Fall back to full table scan
     for(int i = 0; i < table->cur_row; i ++) {
         if(where_match(table, &table->instances[i],
@@ -255,6 +242,9 @@ void trav_create_table(struct Node *node) {
     new_table->instances = malloc(sizeof(struct Row) * 10);
     new_table->cur_alloc_rows=10;
     l_add(tabs, new_table);
+    for(int i = 0; i < 10; i ++) {
+        new_table->indices[i] = NULL;
+    }
     trav_create_table_col(0,
                           table_name->sibling->sibling,
                           new_table);

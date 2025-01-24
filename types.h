@@ -45,5 +45,7 @@ void trav_create_table_col(int place,
 void trav_db_stmt(struct Node *node);
 void trav_index_stmt(struct Node *node);
 
+void create_index(struct Table *table, const char *column_name);
+
 struct Node *mk_node(char *s);
 struct Node *mk_node2(char *s, char *s2);

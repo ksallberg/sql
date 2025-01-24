@@ -1,4 +1,3 @@
 CREATE TABLE apa (name varchar(20), weight int);
-CREATE INDEX mittindex ON apa (name);
 INSERT INTO apa VALUES ("gorilla", 400);
 INSERT INTO apa VALUES ("gibbon", 5);
