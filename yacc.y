@@ -68,9 +68,10 @@ void yyerror(struct Node *n, char *s);
 %token <node> NOT_BETWEEN
 %token <node> ORDER_BY
 %token <node> GROUP_BY
+%token <node> INDEX
 %token <node> '(' ')'
 
-%type <node> program database_stmt create_db drop_db table_stmt create_table declare_col drop_table union_stmt union_types insert_table valuelist query_stmt from_stmt origintable join_stmt join_types rename select_col selectways aggfunc aggfunctypes counttuples counttuplestypes diffcolumns where_stmt conditions relational_stmt query_bracket isbetween ispresent value groupby_stmt part1 having_stmt havingcond aggcond oper1 orderby_stmt part2 part3 sortorder logical_op rel_oper limit_stmt delete_stmt update_stmt intializelist isdistinct
+%type <node> program database_stmt create_db drop_db table_stmt index_stmt create_table declare_col drop_table create_index union_stmt union_types insert_table valuelist query_stmt from_stmt origintable join_stmt join_types rename select_col selectways aggfunc aggfunctypes counttuples counttuplestypes diffcolumns where_stmt conditions relational_stmt query_bracket isbetween ispresent value groupby_stmt part1 having_stmt havingcond aggcond oper1 orderby_stmt part2 part3 sortorder logical_op rel_oper limit_stmt delete_stmt update_stmt intializelist isdistinct
 
 %parse-param {struct Node* top_node}
 
@@ -86,6 +87,11 @@ program : database_stmt ';' {
   *top_node = *$$;
  }
 | table_stmt ';' {
+  $$ = mk_node("program");
+  $$->child = $1;
+  *top_node = *$$;
+}
+| index_stmt ';' {
   $$ = mk_node("program");
   $$->child = $1;
   *top_node = *$$;
@@ -120,10 +126,15 @@ drop_db : DROP DATABASE IDENTIFIER {
   $2->sibling=$3;
 };
 
+index_stmt : create_index {
+  $$ = mk_node("index_stmt");
+  $$->child = $1;
+};
+
 table_stmt : create_table {
   $$ = mk_node("table_stmt");
   $$->child = $1;
- }
+  }
 | drop_table {
   $$ = mk_node("table_stmt");
   $$->child = $1;
@@ -174,6 +185,27 @@ create_table : CREATE TABLE IDENTIFIER '(' declare_col ')' {
   $2->sibling=$3;
   $3->sibling=$4;
   $4->sibling=$5;
+ };
+
+create_index : CREATE INDEX IDENTIFIER ON IDENTIFIER '(' IDENTIFIER ')' {
+  $$ = mk_node("create_index");
+  $1 = mk_node("CREATE");
+  $2 = mk_node("INDEX");
+  $3 = mk_node($3->str);
+  $4 = mk_node("ON");
+  $5 = mk_node($5->str);
+  $6 = mk_node("(");
+  $7 = mk_node($7->str);
+  $8 = mk_node(")");
+
+  $$->child=$1;
+  $1->sibling=$2;
+  $2->sibling=$3;
+  $3->sibling=$4;
+  $4->sibling=$5;
+  $5->sibling=$6;
+  $6->sibling=$7;
+  $7->sibling=$8;
  };
 
 declare_col: IDENTIFIER DATATYPE COMMA declare_col {
