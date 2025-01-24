@@ -13,7 +13,7 @@
 #ifndef YY_TYPEDEF_YY_BUFFER_STATE
 #define YY_TYPEDEF_YY_BUFFER_STATE
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
-YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
+YY_BUFFER_STATE yy_scan_string ( const char *yy_str );
 int yylex_destroy ( void );
 #endif
 
@@ -28,12 +28,12 @@ int selector_match(char *selector, char *column_name) {
 
 int where_match(struct Table *table, struct Row *row,
                 char *where_col, char *where_val) {
-    if(where_col == NULL) {
+    if (where_col == NULL) {
         return true;
     }
     int column_position = -1;
-    for(int i = 0; i <= table->cur_col; i ++) {
-        if(strcmp(table->schema[i], where_col) == 0) {
+    for (int i = 0; i <= table->cur_col; i ++) {
+        if (strcmp(table->schema[i], where_col) == 0) {
             column_position = i;
             break;
         }
@@ -44,7 +44,7 @@ int where_match(struct Table *table, struct Row *row,
 }
 
 void trav_tree(struct Node* node) {
-    if(strcmp(node->str, "program") == 0) {
+    if (strcmp(node->str, "program") == 0) {
         trav_program(node->child);
     } else {
         printf("error! no program found\n");
@@ -52,11 +52,11 @@ void trav_tree(struct Node* node) {
 }
 
 void trav_program(struct Node* node) {
-    if(strcmp(node->str, "table_stmt") == 0) {
+    if (strcmp(node->str, "table_stmt") == 0) {
         trav_tab_stmt(node->child);
-    } else if(strcmp(node->str, "database_stmt") == 0) {
+    } else if (strcmp(node->str, "database_stmt") == 0) {
         trav_db_stmt(node->child);
-    } else if(strcmp(node->str, "index_stmt") == 0) {
+    } else if (strcmp(node->str, "index_stmt") == 0) {
         trav_index_stmt(node->child);
     } else {
         printf("error! faulty program\n");
@@ -64,11 +64,11 @@ void trav_program(struct Node* node) {
 }
 
 void trav_tab_stmt(struct Node* node) {
-    if(strcmp(node->str, "query_stmt") == 0) {
+    if (strcmp(node->str, "query_stmt") == 0) {
         trav_query_stmt(node->child);
-    } else if(strcmp(node->str, "insert_table") == 0) {
+    } else if (strcmp(node->str, "insert_table") == 0) {
         trav_insert_table(node->child);
-    } else if(strcmp(node->str, "create_table") == 0) {
+    } else if (strcmp(node->str, "create_table") == 0) {
         trav_create_table(node->child);
     } else {
         printf("error! unsupported operation!\n");
@@ -76,7 +76,7 @@ void trav_tab_stmt(struct Node* node) {
 }
 
 void trav_query_stmt(struct Node* node) {
-    if(strcmp(node->str, "SELECT") == 0) {
+    if (strcmp(node->str, "SELECT") == 0) {
         trav_select(node);
     }
 }
@@ -93,10 +93,9 @@ void trav_select(struct Node* node) {
     char *where_val = NULL;
     int cost = 0;
 
-    if(where_stmt->child != NULL) {
+    if (where_stmt->child != NULL) {
         struct Node *conditions=where_stmt->child->child;
         struct Node *relational_stmt=conditions->child;
-        print_tree(relational_stmt, 0);
         where_col=relational_stmt->child->str;
         where_val=relational_stmt->child->sibling->sibling->child->str;
     }
@@ -105,15 +104,15 @@ void trav_select(struct Node* node) {
            selector, table_name, where_col, where_val);
 
     table = get_table_by_name(table_name);
-    if(table == NULL) {
+    if (table == NULL) {
         printf("No such table name.\n");
         return;
     }
 
     // Print header
     printf("| ");
-    for(int i = 0; i <= table->cur_col; i ++) {
-        if(selector_match(selector, table->schema[i])) {
+    for (int i = 0; i <= table->cur_col; i ++) {
+        if (selector_match(selector, table->schema[i])) {
             printf("%s | ", table->schema[i]);
         }
     }
@@ -122,51 +121,53 @@ void trav_select(struct Node* node) {
     if (where_col != NULL) {
         // Find column position and check for index
         int column_position = -1;
-        for(int i = 0; i <= table->cur_col; i ++) {
-            if(strcmp(table->schema[i], where_col) == 0) {
+        for (int i = 0; i <= table->cur_col; i ++) {
+            if (strcmp(table->schema[i], where_col) == 0) {
                 column_position = i;
                 break;
             }
         }
 
-        /* BPlusTree *index = table->indices[column_position]; */
-        /* if (index != NULL) { */
-        /*     printf("index is used for select!\n"); */
-        /*     int count; */
-        /*     int *matching_rows = bplus_search(index, where_val, &count); */
+        BPlusTree *index = table->indices[column_position];
+        if (index != NULL) {
+            if (debug) {
+                printf("index is used for select!\n");
+            }
+            int count;
+            int *matching_rows = bplus_search(index, where_val, &count);
 
-        /*     if (matching_rows != NULL) { */
-        /*         // Print matching rows */
-        /*         for (int i = 0; i < count; i++) { */
-        /*             int row_idx = matching_rows[i]; */
-        /*             printf("| "); */
-        /*             for(int j = 0; j <= table->cur_col; j ++) { */
-        /*                 if(selector_match(selector, table->schema[j])) { */
-        /*                     printf("%s | ", table->instances[row_idx].col[j]); */
-        /*                 } */
-        /*             } */
-        /*             printf("\n"); */
-        /*         } */
+            if (matching_rows != NULL) {
+                // Print matching rows
+                for (int i = 0; i < count; i++) {
+                    int row_idx = matching_rows[i];
+                    printf("| ");
+                    for (int j = 0; j <= table->cur_col; j ++) {
+                        if (selector_match(selector, table->schema[j])) {
+                            printf("%s | ", table->instances[row_idx].col[j]);
+                        }
+                    }
+                    printf("\n");
+                }
 
-        /*         free(matching_rows); */
-        /*         if(debug) { */
-        /*             printf("Cost to run query: %d (using index)\n", count); */
-        /*         } */
-        /*         return; */
-        /*     } */
-        /* } */
+                free(matching_rows);
+                if (debug) {
+                    printf("Cost to run query: %d (using index)\n", count);
+                }
+                return;
+            }
+        }
     }
 
-    if(debug) {
+    if (debug) {
         printf("index NOT used for select, full scan!\n");
     }
     // Fall back to full table scan
-    for(int i = 0; i < table->cur_row; i ++) {
-        if(where_match(table, &table->instances[i],
-                       where_col, where_val)) {
+    for (int i = 0; i < table->cur_row; i ++) {
+        if (where_match(table, &table->instances[i],
+                        where_col, where_val)) {
             printf("| ");
-            for(int j = 0; j <= table->cur_col; j ++) {
-                if(selector_match(selector, table->schema[j])) {
+            for (int j = 0; j <= table->cur_col; j ++) {
+                if (selector_match(selector, table->schema[j])) {
                     printf("%s | ", table->instances[i].col[j]);
                 }
             }
@@ -174,7 +175,7 @@ void trav_select(struct Node* node) {
         }
         cost ++;
     }
-    if(debug) {
+    if (debug) {
         printf("Cost to run query: %d\n", cost);
     }
 }
@@ -185,9 +186,9 @@ void trav_select(struct Node* node) {
 struct Table *get_table_by_name(char *wanted_name) {
     struct l_element *cur = tabs->head;
     struct Table *ret_val = NULL;
-    while(cur != NULL) {
+    while (cur != NULL) {
         struct Table *look_at_tab = cur->value;
-        if(strcmp(look_at_tab->name, wanted_name) == 0) {
+        if (strcmp(look_at_tab->name, wanted_name) == 0) {
             ret_val = cur->value;
             break;
         }
@@ -201,7 +202,7 @@ void trav_insert_table(struct Node* node) {
     struct Node *value_list = node->sibling->sibling->sibling->sibling;
     struct Table *table = get_table_by_name(table_name);
 
-    if(table->cur_row + 1 > table->cur_alloc_rows) {
+    if (table->cur_row + 1 > table->cur_alloc_rows) {
         table->cur_alloc_rows += 100;
         int new_size = sizeof(struct Row) * table->cur_alloc_rows;
         table->instances = realloc(table->instances, new_size);
@@ -219,16 +220,18 @@ void trav_value_list(struct Node *node,
     strcpy(tab->instances[tab->cur_row].col[col], cur_value);
 
     BPlusTree *btree = tab->indices[col];
-    if(btree != NULL ) {
-        printf("Bplus insert: %s\n", cur_value);
+    if (btree != NULL ) {
+        if (debug) {
+            printf("Bplus insert: %s\n", cur_value);
+        }
         bplus_insert(btree, cur_value, tab->cur_row);
     }
 
     node = node->child;
-    while(node != NULL && strcmp(node->str, "valuelist") != 0) {
+    while (node != NULL && strcmp(node->str, "valuelist") != 0) {
         node = node->sibling;
     }
-    if(node != NULL) {
+    if (node != NULL) {
         trav_value_list(node, tab, col+1);
     }
 }
@@ -242,7 +245,7 @@ void trav_create_table(struct Node *node) {
     new_table->instances = malloc(sizeof(struct Row) * 10);
     new_table->cur_alloc_rows=10;
     l_add(tabs, new_table);
-    for(int i = 0; i < 10; i ++) {
+    for (int i = 0; i < 10; i ++) {
         new_table->indices[i] = NULL;
     }
     trav_create_table_col(0,
@@ -257,10 +260,10 @@ void trav_create_table_col(int place,
     strcpy(new_table->schema[place], col_name);
     new_table->cur_col = place;
     node = node->child;
-    while(node != NULL && strcmp(node->str, "declare_col")!=0) {
+    while (node != NULL && strcmp(node->str, "declare_col")!=0) {
         node = node->sibling;
     }
-    if(node!=NULL) {
+    if (node != NULL) {
         trav_create_table_col(place+1, node, new_table);
     }
 }
@@ -289,26 +292,25 @@ void trav_index_stmt(struct Node* node) {
 }
 
 void print_tree(struct Node* root, int level) {
-    if(root==NULL) {
+    if (root==NULL) {
         printf("ROOT NULL\n");
         return;
     }
-    for(int i=0;i<level;i++) {
+    for (int i=0;i<level;i++) {
         printf("	");
     }
-    if(root->str[0] >= 65 && root->str[0]<=90) {
+    if (root->str[0] >= 65 && root->str[0]<=90) {
         printf("\033[01;33m");
         printf("-%s\n", root->str);
         printf("\033[0m");
-    }
-    else {
+    } else {
         printf("\033[0;32m");
         printf("-%s\n", root->str);
         printf("\033[0m");
     }
-    if(root->child!=NULL) {
+    if (root->child!=NULL) {
         root = root->child;
-        while(root!=NULL) {
+        while (root!=NULL) {
             print_tree(root, level+1);
             root = root->sibling;
         }
@@ -317,8 +319,8 @@ void print_tree(struct Node* root, int level) {
 
 void create_index(struct Table *table, const char *column_name) {
     int column_position = -1;
-    for(int i = 0; i <= table->cur_col; i ++) {
-        if(strcmp(table->schema[i], column_name) == 0) {
+    for (int i = 0; i <= table->cur_col; i ++) {
+        if (strcmp(table->schema[i], column_name) == 0) {
             column_position = i;
             break;
         }
@@ -348,7 +350,7 @@ void create_index(struct Table *table, const char *column_name) {
 
 void destroy_db() {
     struct l_element *it = tabs->head;
-    while(tabs->size > 0) {
+    while (tabs->size > 0) {
         // remove the element from the list
         struct Table *tab_to_delete = l_remove(tabs);
 
@@ -380,13 +382,13 @@ int main(int argc, char *argv[]) {
     tabs = l_create();
 
     printf("argc %d\n", argc);
-    if(argc==2) {
+    if (argc==2) {
         printf("hej: %s \n", argv[1]);
-        if((init_file = fopen(argv[1], "r")) == NULL) {
+        if ((init_file = fopen(argv[1], "r")) == NULL) {
             printf("Could not open init file\n");
             exit(1);
         }
-        while(fgets(init_file_line, 500, init_file) != NULL) {
+        while (fgets(init_file_line, 500, init_file) != NULL) {
             yy_scan_string(init_file_line);
             top_node = (struct Node*) malloc(sizeof(struct Node));
             yyparse(top_node);
@@ -395,16 +397,16 @@ int main(int argc, char *argv[]) {
         }
     }
     line = (char *) malloc(mybufsize * sizeof(char));
-    while(run==1) {
+    while (run==1) {
         top_node = (struct Node*) malloc(sizeof(struct Node));
         printf("sql>\n");
         getline(&line, &mybufsize, stdin);
-        if(strcmp(line, "exit\n") == 0) {
+        if (strcmp(line, "exit\n") == 0) {
             destroy_db();
             printf("bye bye\n");
             return 0;
         } else if(strcmp(line, "debug\n")==0) {
-            if(debug) {
+            if (debug) {
                 debug = 0;
                 printf("debug stopped! \n");
             } else {
@@ -418,16 +420,16 @@ int main(int argc, char *argv[]) {
             yylex_destroy();
             trav_tree(top_node);
         }
-        if(debug) {
+        if (debug) {
             print_tree(top_node, 0);
             struct l_element *it = tabs->head;
             struct Table *cur_tab;
-            for(int i = 0; i < tabs->size; i ++) {
+            for (int i = 0; i < tabs->size; i ++) {
                 cur_tab = it->value;
                 printf("table# %d name: %s rows: %d\n", i,
                        cur_tab->name, cur_tab->cur_row);
-                if(strcmp(cur_tab->name, "") != 0) {
-                    for(int j = 0; j < 10; j ++) {
+                if (strcmp(cur_tab->name, "") != 0) {
+                    for (int j = 0; j < 10; j ++) {
                         printf("   col# %d name: %s \n", j, cur_tab->schema[j]);
                     }
                 }
