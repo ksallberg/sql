@@ -43,6 +43,7 @@ void trav_create_table_col(int place,
                            struct Table *new_table);
 
 void trav_db_stmt(struct Node *node);
+void trav_index_stmt(struct Node *node);
 
 struct Node *mk_node(char *s);
 struct Node *mk_node2(char *s, char *s2);

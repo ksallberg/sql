@@ -91,7 +91,7 @@ program : database_stmt ';' {
   $$->child = $1;
   *top_node = *$$;
 }
-| create_index ';' {
+| index_stmt ';' {
   $$ = mk_node("program");
   $$->child = $1;
   *top_node = *$$;
@@ -191,11 +191,11 @@ create_index : CREATE INDEX IDENTIFIER ON IDENTIFIER '(' IDENTIFIER ')' {
   $$ = mk_node("create_index");
   $1 = mk_node("CREATE");
   $2 = mk_node("INDEX");
-  $3 = mk_node($3->str);
+  $3 = mk_node((char*)$3);
   $4 = mk_node("ON");
-  $5 = mk_node($5->str);
+  $5 = mk_node((char*)$5);
   $6 = mk_node("(");
-  $7 = mk_node($7->str);
+  $7 = mk_node((char*)$7);
   $8 = mk_node(")");
 
   $$->child=$1;
