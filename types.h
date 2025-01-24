@@ -6,6 +6,7 @@ struct Node {
 
 /* max 10 cols, max 20 chars each */
 struct Row {
+  int row_id;
   char col[10][20];
 };
 

@@ -40,6 +40,25 @@ int where_match(struct Table *table, struct Row *row,
         }
     }
 
+    // Check if we have an index on this column
+    BPlusTree *index = table->indices[column_position];
+    if (index != NULL) {
+        int count;
+        int *matching_rows = bplus_search(index, where_val, &count);
+        if (matching_rows != NULL) {
+            // Look for current row in the results
+            for (int i = 0; i < count; i++) {
+                if (matching_rows[i] == row->row_id) {
+                    free(matching_rows);
+                    return true;
+                }
+            }
+            free(matching_rows);
+            return false;
+        }
+    }
+
+    // Fall back to direct comparison if no index
     return strcmp(where_val, row->col[column_position]) == 0;
 }
 
@@ -106,21 +125,58 @@ void trav_select(struct Node* node) {
         return;
     }
 
+    // Print header
     printf("| ");
     for(int i = 0; i <= table->cur_col; i ++) {
-        /* check that we only print the column that asked for */
         if(selector_match(selector, table->schema[i])) {
             printf("%s | ", table->schema[i]);
         }
     }
     printf("\n");
 
+    if (where_col != NULL) {
+        // Find column position and check for index
+        int column_position = -1;
+        for(int i = 0; i <= table->cur_col; i ++) {
+            if(strcmp(table->schema[i], where_col) == 0) {
+                column_position = i;
+                break;
+            }
+        }
+
+        BPlusTree *index = table->indices[column_position];
+        if (index != NULL) {
+            int count;
+            int *matching_rows = bplus_search(index, where_val, &count);
+            
+            if (matching_rows != NULL) {
+                // Print matching rows
+                for (int i = 0; i < count; i++) {
+                    int row_idx = matching_rows[i];
+                    printf("| ");
+                    for(int j = 0; j <= table->cur_col; j ++) {
+                        if(selector_match(selector, table->schema[j])) {
+                            printf("%s | ", table->instances[row_idx].col[j]);
+                        }
+                    }
+                    printf("\n");
+                }
+                
+                free(matching_rows);
+                if(debug) {
+                    printf("Cost to run query: %d (using index)\n", count);
+                }
+                return;
+            }
+        }
+    }
+
+    // Fall back to full table scan
     for(int i = 0; i < table->cur_row; i ++) {
         if(where_match(table, &table->instances[i],
                        where_col, where_val)) {
             printf("| ");
             for(int j = 0; j <= table->cur_col; j ++) {
-                /* check that we only print the column that asked for */
                 if(selector_match(selector, table->schema[j])) {
                     printf("%s | ", table->instances[i].col[j]);
                 }
@@ -246,11 +302,49 @@ void print_tree(struct Node* root, int level) {
     }
 }
 
+void create_index(struct Table *table, const char *column_name) {
+    int column_position = -1;
+    for(int i = 0; i <= table->cur_col; i ++) {
+        if(strcmp(table->schema[i], column_name) == 0) {
+            column_position = i;
+            break;
+        }
+    }
+    
+    if (column_position == -1) {
+        printf("Column not found\n");
+        return;
+    }
+
+    if (table->indices[column_position] != NULL) {
+        printf("Index already exists on this column\n");
+        return;
+    }
+
+    // Create new B+ tree index
+    BPlusTree *index = bplus_create(table->name, column_name);
+    
+    // Populate index with existing data
+    for (int i = 0; i < table->cur_row; i++) {
+        bplus_insert(index, table->instances[i].col[column_position], i);
+    }
+
+    table->indices[column_position] = index;
+    printf("Created index on %s.%s\n", table->name, column_name);
+}
+
 void destroy_db() {
     struct l_element *it = tabs->head;
     while(tabs->size > 0) {
         // remove the element from the list
         struct Table *tab_to_delete = l_remove(tabs);
+
+        // Clean up indices
+        for (int i = 0; i < 10; i++) {
+            if (tab_to_delete->indices[i] != NULL) {
+                bplus_destroy(tab_to_delete->indices[i]);
+            }
+        }
 
         // delete the table itself
         free(tab_to_delete);
