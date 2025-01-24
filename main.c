@@ -40,44 +40,26 @@ int where_match(struct Table *table, struct Row *row,
         }
     }
 
-    if (column_position == -1) {
-        printf("Column %s not found\n", where_col);
-        return false;
-    }
-
-    // Remove quotes if present
-    char *clean_val = where_val;
-    int val_len = strlen(where_val);
-    if (val_len >= 2 && (where_val[0] == '\'' || where_val[0] == '"') && 
-        (where_val[val_len-1] == '\'' || where_val[val_len-1] == '"')) {
-        clean_val = strdup(where_val + 1);
-        clean_val[val_len-2] = '\0';
-    }
-
     // Check if we have an index on this column
     BPlusTree *index = table->indices[column_position];
     if (index != NULL) {
         int count;
-        int *matching_rows = bplus_search(index, clean_val, &count);
+        int *matching_rows = bplus_search(index, where_val, &count);
         if (matching_rows != NULL) {
             // Look for current row in the results
             for (int i = 0; i < count; i++) {
                 if (matching_rows[i] == row->row_id) {
                     free(matching_rows);
-                    if (clean_val != where_val) free(clean_val);
                     return true;
                 }
             }
             free(matching_rows);
-            if (clean_val != where_val) free(clean_val);
             return false;
         }
     }
 
     // Fall back to direct comparison if no index
-    bool result = strcmp(clean_val, row->col[column_position]) == 0;
-    if (clean_val != where_val) free(clean_val);
-    return result;
+    return strcmp(where_val, row->col[column_position]) == 0;
 }
 
 void trav_tree(struct Node* node) {
