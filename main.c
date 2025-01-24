@@ -280,7 +280,22 @@ void trav_db_stmt(struct Node* node) {
 }
 
 void trav_index_stmt(struct Node* node) {
-    printf("index_stmt not supported\n");
+    if (strcmp(node->child->str, "create_index") == 0) {
+        struct Node *create_node = node->child;
+        char *index_name = create_node->child->sibling->sibling->str;
+        char *table_name = create_node->child->sibling->sibling->sibling->sibling->str;
+        char *column_name = create_node->child->sibling->sibling->sibling->sibling->sibling->sibling->sibling->str;
+        
+        struct Table *table = get_table_by_name(table_name);
+        if (table == NULL) {
+            printf("Table %s not found\n", table_name);
+            return;
+        }
+        
+        create_index(table, column_name);
+    } else {
+        printf("Unsupported index operation\n");
+    }
 }
 
 void print_tree(struct Node* root, int level) {

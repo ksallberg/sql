@@ -206,7 +206,8 @@ create_index : CREATE INDEX IDENTIFIER ON IDENTIFIER '(' IDENTIFIER ')' {
   $5->sibling=$6;
   $6->sibling=$7;
   $7->sibling=$8;
- };
+ }
+;
 
 declare_col: IDENTIFIER DATATYPE COMMA declare_col {
   $$ = mk_node("declare_col");
