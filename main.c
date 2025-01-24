@@ -280,12 +280,15 @@ void trav_db_stmt(struct Node* node) {
 }
 
 void trav_index_stmt(struct Node* node) {
-    printf("apa %s\n", node->child->str);
-    if (strcmp(node->child->str, "create_index") == 0) {
-        struct Node *create_node = node->child;
-        char *index_name = create_node->child->sibling->sibling->str;
-        char *table_name = create_node->child->sibling->sibling->sibling->sibling->str;
-        char *column_name = create_node->child->sibling->sibling->sibling->sibling->sibling->sibling->sibling->str;
+    if (strcmp(node->str, "create_index") == 0) {
+        // Skip CREATE INDEX nodes
+        struct Node *index_name_node = node->child->sibling->sibling;
+        struct Node *table_name_node = index_name_node->sibling->sibling;
+        struct Node *column_name_node = table_name_node->sibling->sibling->sibling;
+        
+        char *index_name = index_name_node->str;
+        char *table_name = table_name_node->str;
+        char *column_name = column_name_node->str;
         
         struct Table *table = get_table_by_name(table_name);
         if (table == NULL) {
