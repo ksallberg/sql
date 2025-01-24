@@ -117,23 +117,29 @@ void bplus_insert(BPlusTree* tree, const char* key, int row_index) {
     }
 }
 
-static BPlusNode* find_leaf(BPlusNode* node, const char* key) {
-    if (!node) return NULL;
-    if (node->is_leaf) return node;
+static BPlusNode* find_leaf(BPlusNode* node, const char* key, int *cost) {
+    if (!node) {
+        return NULL;
+    }
+    if (node->is_leaf) {
+        return node;
+    }
 
     int i = 0;
-    while (i < node->num_keys && strcmp(key, node->keys[i]) > 0)
+    while (i < node->num_keys && strcmp(key, node->keys[i]) > 0) {
+        (*cost) ++;
         i++;
-    return find_leaf(node->children[i], key);
+    }
+    return find_leaf(node->children[i], key, cost);
 }
 
-int* bplus_search(BPlusTree* tree, const char* key, int* count) {
+int* bplus_search(BPlusTree* tree, const char* key, int* count, int *cost) {
     if (!tree || !key || !count) {
         if (count) *count = 0;
         return NULL;
     }
 
-    BPlusNode* leaf = find_leaf(tree->root, key);
+    BPlusNode* leaf = find_leaf(tree->root, key, cost);
     if (!leaf) {
         *count = 0;
         return NULL;

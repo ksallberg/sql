@@ -34,7 +34,7 @@ void bplus_insert(BPlusTree* tree, const char* key, int row_index);
  * @return Dynamically allocated array of row indices where key was found.
  *         NULL if no matches found. Caller must free the returned array.
  */
-int* bplus_search(BPlusTree* tree, const char* key, int* count);
+int* bplus_search(BPlusTree* tree, const char* key, int* count, int* cost);
 
 /**
  * Search for all keys within a range (inclusive)

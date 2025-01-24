@@ -134,7 +134,8 @@ void trav_select(struct Node* node) {
                 printf("index is used for select!\n");
             }
             int count;
-            int *matching_rows = bplus_search(index, where_val, &count);
+            int cost = 0;
+            int *matching_rows = bplus_search(index, where_val, &count, &cost);
 
             if (matching_rows != NULL) {
                 // Print matching rows
@@ -151,7 +152,7 @@ void trav_select(struct Node* node) {
 
                 free(matching_rows);
                 if (debug) {
-                    printf("Cost to run query: %d (using index)\n", count);
+                    printf("Cost to run query: %d (using index)\n", cost);
                 }
                 return;
             }
@@ -161,6 +162,7 @@ void trav_select(struct Node* node) {
     if (debug) {
         printf("index NOT used for select, full scan!\n");
     }
+
     // Fall back to full table scan
     for (int i = 0; i < table->cur_row; i ++) {
         if (where_match(table, &table->instances[i],
