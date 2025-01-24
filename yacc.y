@@ -191,11 +191,11 @@ create_index : CREATE INDEX IDENTIFIER ON IDENTIFIER '(' IDENTIFIER ')' {
   $$ = mk_node("create_index");
   $1 = mk_node("CREATE");
   $2 = mk_node("INDEX");
-  $3 = mk_node($3->str);
+  $3 = mk_node(((struct Node*)$3)->str);
   $4 = mk_node("ON");
-  $5 = mk_node($5->str);
+  $5 = mk_node(((struct Node*)$5)->str);
   $6 = mk_node("(");
-  $7 = mk_node($7->str);
+  $7 = mk_node(((struct Node*)$7)->str);
   $8 = mk_node(")");
 
   $$->child=$1;
