@@ -66,6 +66,7 @@ void trav_tree(struct Node* node) {
     if(strcmp(node->str, "program") == 0) {
         trav_program(node->child);
     } else {
+        print_tree(node, 4);
         printf("error! no program found\n");
     }
 }
@@ -75,6 +76,8 @@ void trav_program(struct Node* node) {
         trav_tab_stmt(node->child);
     } else if(strcmp(node->str, "database_stmt") == 0) {
         trav_db_stmt(node->child);
+    } else if(strcmp(node->str, "index_stmt") == 0) {
+        trav_index_stmt(node->child);
     } else {
         printf("error! faulty program\n");
     }
@@ -148,7 +151,7 @@ void trav_select(struct Node* node) {
         if (index != NULL) {
             int count;
             int *matching_rows = bplus_search(index, where_val, &count);
-            
+
             if (matching_rows != NULL) {
                 // Print matching rows
                 for (int i = 0; i < count; i++) {
@@ -161,7 +164,7 @@ void trav_select(struct Node* node) {
                     }
                     printf("\n");
                 }
-                
+
                 free(matching_rows);
                 if(debug) {
                     printf("Cost to run query: %d (using index)\n", count);
@@ -276,8 +279,13 @@ void trav_db_stmt(struct Node* node) {
     printf("db_stmt not supported\n");
 }
 
+void trav_index_stmt(struct Node* node) {
+    printf("index_stmt not supported\n");
+}
+
 void print_tree(struct Node* root, int level) {
     if(root==NULL) {
+        printf("ROOT NULL\n");
         return;
     }
     for(int i=0;i<level;i++) {
@@ -300,6 +308,12 @@ void print_tree(struct Node* root, int level) {
             root = root->sibling;
         }
     }
+    while(root!=NULL) {
+        root = root->sibling;
+        printf("HEJ HEJ: %s\n", root->str);
+        print_tree(root, level+1);
+    }
+
 }
 
 void create_index(struct Table *table, const char *column_name) {
@@ -310,7 +324,7 @@ void create_index(struct Table *table, const char *column_name) {
             break;
         }
     }
-    
+
     if (column_position == -1) {
         printf("Column not found\n");
         return;
@@ -323,7 +337,7 @@ void create_index(struct Table *table, const char *column_name) {
 
     // Create new B+ tree index
     BPlusTree *index = bplus_create(table->name, column_name);
-    
+
     // Populate index with existing data
     for (int i = 0; i < table->cur_row; i++) {
         bplus_insert(index, table->instances[i].col[column_position], i);

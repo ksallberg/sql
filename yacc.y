@@ -71,7 +71,7 @@ void yyerror(struct Node *n, char *s);
 %token <node> INDEX
 %token <node> '(' ')'
 
-%type <node> program database_stmt create_db drop_db table_stmt index_stmt create_table declare_col drop_table create_index union_stmt union_types insert_table valuelist query_stmt from_stmt origintable join_stmt join_types rename select_col selectways aggfunc aggfunctypes counttuples counttuplestypes diffcolumns where_stmt conditions relational_stmt query_bracket isbetween ispresent value groupby_stmt part1 having_stmt havingcond aggcond oper1 orderby_stmt part2 part3 sortorder logical_op rel_oper limit_stmt delete_stmt update_stmt intializelist isdistinct
+%type <node> program database_stmt create_db drop_db table_stmt index_stmt create_index create_table declare_col drop_table union_stmt union_types insert_table valuelist query_stmt from_stmt origintable join_stmt join_types rename select_col selectways aggfunc aggfunctypes counttuples counttuplestypes diffcolumns where_stmt conditions relational_stmt query_bracket isbetween ispresent value groupby_stmt part1 having_stmt havingcond aggcond oper1 orderby_stmt part2 part3 sortorder logical_op rel_oper limit_stmt delete_stmt update_stmt intializelist isdistinct
 
 %parse-param {struct Node* top_node}
 
@@ -91,7 +91,7 @@ program : database_stmt ';' {
   $$->child = $1;
   *top_node = *$$;
 }
-| index_stmt ';' {
+| create_index ';' {
   $$ = mk_node("program");
   $$->child = $1;
   *top_node = *$$;
